@@ -37,10 +37,16 @@ public interface TaskService {
     Collection<TaskDTO> findAllUserTasks(UserId userId);
 
     /**
-     * Updates task in repository
-     * @param taskId Id of task to be updated
+     * Set task task status to false
+     * @param taskId Id of task to be completed
      */
-    void update(TaskId taskId);
+    void complete(TaskId taskId);
+
+    /**
+     * Set task task status to true
+     * @param taskId Id of task to be reopened
+     */
+    void reopen(TaskId taskId);
 
     /**
      * Delete task from repository

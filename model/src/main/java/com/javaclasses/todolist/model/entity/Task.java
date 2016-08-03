@@ -50,7 +50,7 @@ public class Task implements Entity<TaskId> {
         return owner;
     }
 
-    public void changeStatus(boolean active) {
+    public void setStatus(boolean active) {
         isActive = active;
     }
 

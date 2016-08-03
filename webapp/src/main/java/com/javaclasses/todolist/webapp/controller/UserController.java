@@ -3,9 +3,13 @@ package com.javaclasses.todolist.webapp.controller;
 import com.javaclasses.todolist.model.dto.LoginDTO;
 import com.javaclasses.todolist.model.dto.RegistrationDTO;
 import com.javaclasses.todolist.model.dto.SecurityTokenDTO;
+import com.javaclasses.todolist.model.dto.TaskDTO;
+import com.javaclasses.todolist.model.entity.tinytype.UserId;
+import com.javaclasses.todolist.model.service.TaskService;
 import com.javaclasses.todolist.model.service.UserAuthenticationException;
 import com.javaclasses.todolist.model.service.UserRegistrationException;
 import com.javaclasses.todolist.model.service.UserService;
+import com.javaclasses.todolist.model.service.impl.TaskServiceImpl;
 import com.javaclasses.todolist.model.service.impl.UserServiceImpl;
 import com.javaclasses.todolist.webapp.HandlerRegistry;
 import com.javaclasses.todolist.webapp.JsonEntity;
@@ -13,6 +17,8 @@ import com.javaclasses.todolist.webapp.handler.Handler;
 import com.javaclasses.todolist.webapp.handler.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Collection;
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
@@ -37,10 +43,12 @@ public class UserController {
     private static final String PASSWORD_PARAMETER = "password";
     private static final String CONFIRM_PASSWORD_PARAMETER = "confirmPassword";
     private static final String ERROR_MESSAGE_PARAMETER = "errorMessage";
+    private static final String USER_TASKS_PARAMETER = "userTasks";
     private static final String MESSAGE_PARAMETER = "message";
     private static final String TOKEN_ID_PARAMETER = "tokenId";
 
-    private final UserService userService = UserServiceImpl.getInstance();
+    private final TaskService taskService = TaskServiceImpl.getInstance();
+    private final UserService userService = UserServiceImpl.getInstance(taskService);
     private final HandlerRegistry handlerRegistry = HandlerRegistry.getInstance();
 
     private UserController() {
@@ -98,9 +106,11 @@ public class UserController {
             final JsonEntity jsonEntity = new JsonEntity();
             try {
                 final SecurityTokenDTO tokenDTO = userService.login(loginDTO);
+                final Collection<TaskDTO> tasks = getUserChatList(tokenDTO.getUserId());
 
                 jsonEntity.add(TOKEN_ID_PARAMETER, tokenDTO.getTokenId().toString());
                 jsonEntity.add(EMAIL_PARAMETER, email);
+                jsonEntity.add(USER_TASKS_PARAMETER, tasks);
                 jsonEntity.setResponseStatusCode(SC_OK);
             } catch (UserAuthenticationException e) {
                 jsonEntity.add(ERROR_MESSAGE_PARAMETER, e.getMessage());
@@ -115,6 +125,10 @@ public class UserController {
                 }
             }
         });
+    }
+
+    private Collection<TaskDTO> getUserChatList(UserId userId) {
+        return taskService.findAllUserTasks(userId);
     }
 
     public static UserController init() {

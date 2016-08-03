@@ -1,9 +1,6 @@
 package com.javaclasses.todolist.model.service.impl;
 
-import com.javaclasses.todolist.model.dto.LoginDTO;
-import com.javaclasses.todolist.model.dto.RegistrationDTO;
-import com.javaclasses.todolist.model.dto.SecurityTokenDTO;
-import com.javaclasses.todolist.model.dto.UserDTO;
+import com.javaclasses.todolist.model.dto.*;
 import com.javaclasses.todolist.model.entity.SecurityToken;
 import com.javaclasses.todolist.model.entity.User;
 import com.javaclasses.todolist.model.entity.tinytype.Email;
@@ -12,6 +9,7 @@ import com.javaclasses.todolist.model.entity.tinytype.SecurityTokenId;
 import com.javaclasses.todolist.model.entity.tinytype.UserId;
 import com.javaclasses.todolist.model.repository.impl.SecurityTokenRepository;
 import com.javaclasses.todolist.model.repository.impl.UserRepository;
+import com.javaclasses.todolist.model.service.TaskService;
 import com.javaclasses.todolist.model.service.UserAuthenticationException;
 import com.javaclasses.todolist.model.service.UserRegistrationException;
 import com.javaclasses.todolist.model.service.UserService;
@@ -36,18 +34,20 @@ public class UserServiceImpl implements UserService {
             "^([A-Za-z0-9+_.-]+@[A-Za-z]+(\\.[A-Za-z]+)*\\.[A-Za-z]{2,})$";
 
     private static UserServiceImpl userService;
+    private final TaskService taskService;
 
     private final UserRepository userRepository =
             UserRepository.getInstance();
     private final SecurityTokenRepository tokenRepository =
             SecurityTokenRepository.getInstance();
 
-    private UserServiceImpl() {
+    private UserServiceImpl(TaskService taskService) {
+        this.taskService = taskService;
     }
 
-    public static UserServiceImpl getInstance() {
+    public static UserServiceImpl getInstance(TaskService taskService) {
         if (userService == null) {
-            userService = new UserServiceImpl();
+            userService = new UserServiceImpl(taskService);
         }
 
         return userService;
@@ -267,6 +267,12 @@ public class UserServiceImpl implements UserService {
 
         if (log.isInfoEnabled()) {
             log.info("Start deleting user with id: " + userId.getId());
+        }
+
+        final Collection<TaskDTO> tasks = taskService.findAllUserTasks(userId);
+
+        for (TaskDTO task : tasks) {
+            taskService.delete(task.getTaskId());
         }
 
         userRepository.delete(userId);

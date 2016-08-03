@@ -6,9 +6,11 @@ import com.javaclasses.todolist.model.dto.SecurityTokenDTO;
 import com.javaclasses.todolist.model.dto.UserDTO;
 import com.javaclasses.todolist.model.entity.tinytype.Email;
 import com.javaclasses.todolist.model.entity.tinytype.UserId;
+import com.javaclasses.todolist.model.service.TaskService;
 import com.javaclasses.todolist.model.service.UserAuthenticationException;
 import com.javaclasses.todolist.model.service.UserRegistrationException;
 import com.javaclasses.todolist.model.service.UserService;
+import com.javaclasses.todolist.model.service.impl.TaskServiceImpl;
 import com.javaclasses.todolist.model.service.impl.UserServiceImpl;
 import org.junit.Test;
 
@@ -17,7 +19,8 @@ import static org.junit.Assert.fail;
 
 public class UserServiceShould {
 
-    private final UserService userService = UserServiceImpl.getInstance();
+    private final TaskService taskService = TaskServiceImpl.getInstance();
+    private final UserService userService = UserServiceImpl.getInstance(taskService);
 
     private final String email = "user@test.com";
     private final String password = "password";

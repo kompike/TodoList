@@ -1,6 +1,7 @@
 package com.javaclasses.todolist.webapp;
 
 import com.javaclasses.todolist.webapp.handler.Handler;
+import com.javaclasses.todolist.webapp.handler.PageNotFoundHandler;
 import com.javaclasses.todolist.webapp.handler.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,14 @@ public class HandlerRegistry {
         }
 
         final Handler handler = registry.get(requestContext);
+
+        if (handler == null) {
+            if (log.isWarnEnabled()) {
+                log.warn("Handler by given request context not found: " + requestContext.toString());
+            }
+
+            return new PageNotFoundHandler();
+        }
 
         try {
             return handler;

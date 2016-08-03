@@ -1,16 +1,31 @@
-var TodoList = function(rootDivId, eventBus, userService) {
+var TodoList = function (rootDivId, eventBus, userService) {
 
-    var _initialize = function() {
+    var _initialize = function () {
 
         var registrationDivId = rootDivId + '_register';
+        var loginDivId = rootDivId + '_login';
 
         $('<div/>').appendTo('body').attr('id', rootDivId);
 
         var registrationComponent = new RegistrationFormComponent(registrationDivId);
-        
+        var loginFormComponent = new LoginFormComponent(loginDivId);
+
         eventBus.subscribe(Events.NEW_USER_ADDITION, userService.onUserAdded);
+        eventBus.subscribe(Events.USER_ALREADY_REGISTERED, loginFormComponent.initialize);
+        eventBus.subscribe(Events.USER_NOT_REGISTERED, registrationComponent.initialize);
+        eventBus.subscribe(Events.LOGIN_SUCCESSFULL, loginFormComponent.onUserLoggedIn);
+        eventBus.subscribe(Events.LOGIN_ATTEMPT, userService.onUserLogin);
 
         registrationComponent.initialize();
+    };
+
+    var _onInputFieldEvent = function (inputDivId) {
+        $(inputDivId).keydown(function (event) {
+            var parent = $(this).parent();
+            if (event.ctrlKey && event.which == 13) {
+                parent.children('button').click();
+            }
+        });
     };
 
     var RegistrationFormComponent = function (_elementDivId) {
@@ -19,6 +34,7 @@ var TodoList = function(rootDivId, eventBus, userService) {
 
             eventBus.subscribe(Events.REGISTRATION_FAILED, _onRegistrationFailed);
             eventBus.subscribe(Events.USER_REGISTERED, _onUserRegistered);
+            eventBus.subscribe(Events.USER_ALREADY_REGISTERED, _onUserAlreadyRegistered);
 
             $('#' + rootDivId).append($('<div/>').attr('id', _elementDivId));
 
@@ -60,13 +76,20 @@ var TodoList = function(rootDivId, eventBus, userService) {
                 .append($('<h6/>').html('Already registered?'))
                 .append($('<button/>').attr('id', buttonId + "_login").text('Login').click(function () {
 
-                    eventBus.post(Events.USER_REGISTERED, {});
+                    eventBus.post(Events.USER_ALREADY_REGISTERED, {});
                 })))
+
+            _onInputFieldEvent('input');
         };
 
         var _onUserRegistered = function (message) {
             $('#' + _elementDivId + '_box_err').html('');
             $('#' + _elementDivId + '_box_success').html($('<span/>').text(message));
+        }
+
+        var _onUserAlreadyRegistered = function () {
+            $('#' + rootDivId + '_register').remove();
+            $('#' + rootDivId + '_registered').remove();
         }
 
         var _onRegistrationFailed = function (message) {
@@ -83,13 +106,78 @@ var TodoList = function(rootDivId, eventBus, userService) {
         };
     };
 
-    return {'initialize' : _initialize};
+    var LoginFormComponent = function (_elementDivId) {
+
+        var _initialize = function () {
+
+            eventBus.subscribe(Events.LOGIN_FAILED, _onLoginFailed);
+            eventBus.subscribe(Events.USER_NOT_REGISTERED, _onUserLoggedIn);
+
+            $('#' + rootDivId).append($('<div/>').attr('id', _elementDivId))
+
+            var loginFormBoxId = _elementDivId + '_box';
+            var buttonId = loginFormBoxId + '_btn';
+            var errorDivId = loginFormBoxId + '_err';
+
+            $('#' + _elementDivId).html($('<div/>').attr('id', _elementDivId + '_box')
+                .append($('<h5/>').html('Login form'))
+                .append($('<label/>').attr('for', 'email').text('Email'))
+                .append($('<input/>').attr({
+                    'id': _elementDivId + '_email',
+                    'name': 'email',
+                    'type': 'text'
+                })).append('<br/>')
+                .append($('<label/>').attr('for', 'password').text('Password'))
+                .append($('<input/>').attr({
+                    'id': _elementDivId + '_password',
+                    'name': 'password',
+                    'type': 'password'
+                })).append('<br/>')
+                .append($('<div/>').attr('id', errorDivId)).append('<br/>')
+                .append($('<button/>').attr('id', buttonId).text('Login').click(function () {
+                    var user = {
+                        'email': $('#' + _elementDivId + '_email').val(),
+                        'password': $('#' + _elementDivId + '_password').val()
+                    };
+                    eventBus.post(Events.LOGIN_ATTEMPT, user);
+                })))
+
+
+            $('#' + rootDivId).append($('<div/>').attr('id', rootDivId + '_to_registration')
+                .append($('<h6/>').html('Not registered?'))
+                .append($('<button/>').attr('id', buttonId + "_login").text('Register').click(function () {
+                    eventBus.post(Events.USER_NOT_REGISTERED, {});
+                })))
+
+            _onInputFieldEvent('input');
+        };
+
+        var _onLoginFailed = function (message) {
+            _loginFailed(message);
+        }
+
+        var _onUserLoggedIn = function () {
+            $('#' + rootDivId + '_login').remove();
+            $('#' + rootDivId + '_to_registration').remove();
+        }
+
+        var _loginFailed = function (message) {
+            $('#' + _elementDivId + '_box_err').html($('<span/>').text(message));
+        };
+
+        return {
+            'initialize': _initialize,
+            'onUserLoggedIn': _onUserLoggedIn
+        };
+    };
+
+    return {'initialize': _initialize};
 }
 
 if (typeof define !== 'function') {
     var define = require('amdefine')(module);
 }
 
-define(function() {
+define(function () {
     return TodoList;
 });

@@ -51,21 +51,21 @@ import static org.apache.http.HttpHeaders.USER_AGENT;
         return result.toString();
     }
 
-    /*package*/ static HttpEntity registerUser(String nickname, String password, String confirmPassword)
+    /*package*/ static HttpEntity registerUser(String email, String password, String confirmPassword)
             throws IOException {
 
         final List<NameValuePair> registrationUrlParameters = new ArrayList<>();
-        registrationUrlParameters.add(new BasicNameValuePair(EMAIL, nickname));
+        registrationUrlParameters.add(new BasicNameValuePair(EMAIL, email));
         registrationUrlParameters.add(new BasicNameValuePair(PASSWORD, password));
         registrationUrlParameters.add(new BasicNameValuePair(CONFIRM_PASSWORD, confirmPassword));
 
         return generatePostResponse(REGISTRATION_URL, registrationUrlParameters);
     }
 
-    /*package*/ static HttpEntity loginUser(String nickname, String password) throws IOException {
+    /*package*/ static HttpEntity loginUser(String email, String password) throws IOException {
 
         final List<NameValuePair> loginUrlParameters = new ArrayList<>();
-        loginUrlParameters.add(new BasicNameValuePair(EMAIL, nickname));
+        loginUrlParameters.add(new BasicNameValuePair(EMAIL, email));
         loginUrlParameters.add(new BasicNameValuePair(PASSWORD, password));
 
         return generatePostResponse(LOGIN_URL, loginUrlParameters);

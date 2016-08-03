@@ -4,7 +4,7 @@
     box-sizing: border-box;
 }
 
-div[id$="_register"] {
+div[id$="_register"], div[id$="_login"] {
     max-width: 300px;
     margin: 25px auto;
     padding: 5px 10px;
@@ -12,7 +12,7 @@ div[id$="_register"] {
     border-radius: 8px;
 }
 
-div[id$="_registered"] {
+div[id$="_registered"], div[id$="_to_registration"] {
     max-width: 200px;
     margin: 25px auto;
     padding: 5px 10px;

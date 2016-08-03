@@ -22,8 +22,34 @@ var UserService = function(eventBus, serverURL) {
         return _addUser(user);
     };
 
+    var _loginUser = function(user) {
+        var email = user.email;
+        var password = user.password;
+        $.post(
+            serverURL + "api/login",
+            {
+                email: email,
+                password: password
+            },
+            function(xhr) {
+                var data = JSON.parse(xhr);
+                localStorage.setItem('tokenId', data.tokenId);
+                localStorage.setItem('currentUser', data.email);
+                eventBus.post(Events.LOGIN_SUCCESSFULL, data);
+            }, 'text')
+            .fail(function(xhr, status, error) {
+                var err = JSON.parse(xhr.responseText);
+                eventBus.post(Events.LOGIN_FAILED, err.errorMessage);
+            });
+    };
+
+    var _onUserLogin = function(user) {
+        _loginUser(user);
+    };
+
     return {
-        'onUserAdded' : _onUserAdded
+        'onUserAdded' : _onUserAdded,
+        'onUserLogin' : _onUserLogin
     };
 };
 

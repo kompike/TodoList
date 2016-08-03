@@ -12,4 +12,8 @@
         <servlet-name>DispatcherServlet</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
+
+    <listener>
+        <listener-class>com.javaclasses.todolist.webapp.listener.ContextListener</listener-class>
+    </listener>
 </web-app>

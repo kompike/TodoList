@@ -1,11 +1,14 @@
 package com.javaclasses.todolist.model.repository;
 
+import com.javaclasses.todolist.model.entity.Entity;
+import com.javaclasses.todolist.model.entity.tinytype.EntityId;
+
 import java.util.Collection;
 
 /**
  * Basic interface for CRUD operations
  */
-public interface Repository<TypeId, Type> {
+public interface Repository<TypeId extends EntityId, Type extends Entity> {
 
     /**
      * Adds new entity to repository

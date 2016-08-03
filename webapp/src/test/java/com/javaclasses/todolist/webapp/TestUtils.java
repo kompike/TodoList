@@ -26,6 +26,7 @@ import static org.apache.http.HttpHeaders.USER_AGENT;
     // URL constants
     private static final String URL = "http://localhost:8080/api/";
     private static final String REGISTRATION_URL = URL + "register";
+    private static final String LOGIN_URL = URL + "login";
 
     // Parameter constants
     private static final String EMAIL = "email";
@@ -59,6 +60,15 @@ import static org.apache.http.HttpHeaders.USER_AGENT;
         registrationUrlParameters.add(new BasicNameValuePair(CONFIRM_PASSWORD, confirmPassword));
 
         return generatePostResponse(REGISTRATION_URL, registrationUrlParameters);
+    }
+
+    /*package*/ static HttpEntity loginUser(String nickname, String password) throws IOException {
+
+        final List<NameValuePair> loginUrlParameters = new ArrayList<>();
+        loginUrlParameters.add(new BasicNameValuePair(EMAIL, nickname));
+        loginUrlParameters.add(new BasicNameValuePair(PASSWORD, password));
+
+        return generatePostResponse(LOGIN_URL, loginUrlParameters);
     }
 
     private static HttpEntity generatePostResponse(String url, List<NameValuePair> urlParameters)

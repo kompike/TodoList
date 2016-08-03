@@ -7,8 +7,10 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static com.javaclasses.todolist.webapp.TestUtils.getResponseContent;
+import static com.javaclasses.todolist.webapp.TestUtils.loginUser;
 import static com.javaclasses.todolist.webapp.TestUtils.registerUser;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class UserControllerShould {
 
@@ -99,5 +101,53 @@ public class UserControllerShould {
 
         assertEquals("Already existing user was registered.",
                 "{\"errorMessage\":\"User with given email already exists\"}", responseContent);
+    }
+
+    @Test
+    public void allowExistingUserToLogin() throws IOException {
+
+        final String email = "NewUser@user.com";
+        final String password = "NewPassword";
+
+        registerUser(email, password, password);
+
+        final HttpEntity httpEntity = loginUser(email, password);
+
+        final String responseContent = getResponseContent(httpEntity);
+
+        assertTrue("Result must contain tokenId field.",
+                responseContent.contains("tokenId"));
+        assertTrue("Result must contain email field with \"" + email + "\" value.",
+                responseContent.contains(email));
+    }
+
+    @Test
+    public void prohibitLoginOfNotRegisteredUser() throws IOException {
+
+        final String email = "Frank@user.com";
+        final String password = "FrankPass";
+
+        final HttpEntity httpEntity = loginUser(email, password);
+
+        final String responseContent = getResponseContent(httpEntity);
+
+        assertEquals("Not registered user logged in.",
+                "{\"errorMessage\":\"Incorrect email/password\"}", responseContent);
+    }
+
+    @Test
+    public void checkPasswordCorrectnessDuringLogin() throws IOException {
+
+        final String email = "Misha@user.com";
+        final String password = "MishaPass";
+
+        registerUser(email, password, password);
+
+        final HttpEntity httpEntity = loginUser(email, "password");
+
+        final String responseContent = getResponseContent(httpEntity);
+
+        assertEquals("User with incorrect password logged in.",
+                "{\"errorMessage\":\"Incorrect email/password\"}", responseContent);
     }
 }

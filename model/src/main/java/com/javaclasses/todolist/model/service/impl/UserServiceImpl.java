@@ -18,6 +18,19 @@ import java.util.Collection;
  */
 public class UserServiceImpl implements UserService {
 
+    private static UserServiceImpl userService;
+
+    private UserServiceImpl() {
+    }
+
+    public static UserServiceImpl getInstance() {
+        if (userService == null) {
+            userService = new UserServiceImpl();
+        }
+
+        return userService;
+    }
+
     @Override
     public UserId register(RegistrationDTO registrationDTO) throws UserRegistrationException {
         return null;

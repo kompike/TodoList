@@ -4,11 +4,13 @@ import com.javaclasses.todolist.model.dto.LoginDTO;
 import com.javaclasses.todolist.model.dto.RegistrationDTO;
 import com.javaclasses.todolist.model.dto.SecurityTokenDTO;
 import com.javaclasses.todolist.model.dto.UserDTO;
+import com.javaclasses.todolist.model.entity.SecurityToken;
 import com.javaclasses.todolist.model.entity.User;
 import com.javaclasses.todolist.model.entity.tinytype.Email;
 import com.javaclasses.todolist.model.entity.tinytype.Password;
 import com.javaclasses.todolist.model.entity.tinytype.SecurityTokenId;
 import com.javaclasses.todolist.model.entity.tinytype.UserId;
+import com.javaclasses.todolist.model.repository.impl.SecurityTokenRepository;
 import com.javaclasses.todolist.model.repository.impl.UserRepository;
 import com.javaclasses.todolist.model.service.UserAuthenticationException;
 import com.javaclasses.todolist.model.service.UserRegistrationException;
@@ -37,6 +39,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository =
             UserRepository.getInstance();
+    private final SecurityTokenRepository tokenRepository =
+            SecurityTokenRepository.getInstance();
 
     private UserServiceImpl() {
     }
@@ -120,7 +124,50 @@ public class UserServiceImpl implements UserService {
     public SecurityTokenDTO login(LoginDTO loginDTO)
             throws UserAuthenticationException {
 
-        return null;
+        if (log.isInfoEnabled()) {
+            log.info("Start login user...");
+        }
+
+        final String email = loginDTO.getEmail();
+        final String password = loginDTO.getPassword();
+
+        checkNotNull(email, "Email cannot be null");
+        checkNotNull(password, "Password cannot be null");
+
+        final User user = userRepository.findByEmail(email);
+
+        if (user == null) {
+
+            if (log.isWarnEnabled()) {
+                log.warn("Incorrect email/password");
+            }
+
+            throw new UserAuthenticationException("Incorrect email/password");
+        }
+        if (!user.getPassword().getPassword().equals(password)) {
+
+            if (log.isWarnEnabled()) {
+                log.warn("Incorrect email/password");
+            }
+
+            throw new UserAuthenticationException("Incorrect email/password");
+        }
+
+        final SecurityToken token = new SecurityToken(user.getId());
+        final SecurityTokenId tokenId = tokenRepository.add(token);
+        final SecurityToken tokenById = tokenRepository.findById(tokenId);
+
+        final SecurityTokenDTO tokenDTO =
+                new SecurityTokenDTO(tokenById.getId(), tokenById.getUserId());
+
+        try {
+            return tokenDTO;
+        } finally {
+
+            if (log.isInfoEnabled()) {
+                log.info("User successfully logged in.");
+            }
+        }
     }
 
     @Override
@@ -166,7 +213,28 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO findByToken(SecurityTokenId tokenId) {
 
-        return null;
+        if (log.isInfoEnabled()) {
+            log.info("Start looking for user by security token...");
+        }
+
+        final SecurityToken token = tokenRepository.findById(tokenId);
+
+        if (token == null) {
+            return null;
+        }
+
+        final UserId userId = token.getUserId();
+
+        final User user = userRepository.findById(userId);
+
+        try {
+            return createUserDTOFromUser(user);
+        } finally {
+
+            if (log.isInfoEnabled()) {
+                log.info("User successfully found.");
+            }
+        }
     }
 
     @Override

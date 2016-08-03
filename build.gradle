@@ -18,3 +18,12 @@ allprojects {
         testCompile 'junit:junit:4.11'
     }
 }
+
+project(':webapp') {
+
+    dependencies {
+
+        compile project(':model')
+    }
+
+}

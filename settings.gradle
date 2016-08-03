@@ -1,2 +1,4 @@
 rootProject.name = 'TodoList'
+include 'model'
+include 'webapp'
 

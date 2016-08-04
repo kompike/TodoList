@@ -60,12 +60,13 @@ public class TaskController {
             }
 
             final String description = request.getParameter("description");
+
             try {
                 taskService.add(new AddedTaskDTO(description, user.getUserId()));
                 final String tasks = getUserTaskList(user.getUserId());
 
                 jsonEntity.add(USER_TASKS_PARAMETER, tasks);
-                jsonEntity.add(MESSAGE_PARAMETER, "Chat successfully created");
+                jsonEntity.add(MESSAGE_PARAMETER, "Task successfully created");
                 jsonEntity.setResponseStatusCode(SC_OK);
             } catch (TaskCreationException e) {
                 jsonEntity.add(ERROR_MESSAGE_PARAMETER, e.getMessage());

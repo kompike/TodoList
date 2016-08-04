@@ -17,6 +17,7 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
         eventBus.subscribe(Events.USER_NOT_REGISTERED, registrationComponent.initialize);
         eventBus.subscribe(Events.LOGIN_SUCCESSFULL, dashboardComponent.initialize);
         eventBus.subscribe(Events.LOGIN_ATTEMPT, userService.onUserLogin);
+        eventBus.subscribe(Events.NEW_TASK_ADDITION, taskService.onTaskAdded);
 
         registrationComponent.initialize();
     };
@@ -181,7 +182,10 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
 
     var DashboardComponent = function (_elementDivId) {
 
-        var _initialize = function () {
+        var _initialize = function (userInfo) {
+
+            eventBus.subscribe(Events.TASK_CREATED, _onTaskCreated);
+            eventBus.subscribe(Events.TASK_CREATION_FAILED, _onTaskCreationFailed);
 
             $('#' + rootDivId).append($('<div/>').attr('id', _elementDivId));
             $('#' + _elementDivId).append($('<div/>').attr('id', _elementDivId + '_header'));
@@ -197,7 +201,11 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
                     'id': _elementDivId + '_add_task',
                     'class': 'add_task'
                 }).text('Add new task').click(function () {
-                    _addTask({'description': $('#' + _elementDivId + '_description').val()});
+                    var taskInfo = {
+                        'description': $('#' + _elementDivId + '_description').val(),
+                        'tokenId': localStorage.getItem('tokenId')
+                    };
+                    eventBus.post(Events.NEW_TASK_ADDITION, taskInfo);
                 }))
                 .append($('<div/>').attr('id', _elementDivId + '_box_err'));
 
@@ -205,32 +213,55 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
 
             $('#' + _elementDivId + '_description').focus();
 
+            _updateTaskList(userInfo.userTasks);
+
             _onInputFieldEvent('#' + _elementDivId + '_description');
         };
 
-        var _addTask = function (taskInfo) {
+        var _updateTaskList = function (userTasks) {
 
-            $('#' + _elementDivId + '_list').append($('<ul/>').attr({
-                'id': '_todo',
-                'class': 'todo-list'
-            }));
+            if (userTasks.length > 0) {
+                $('#' + _elementDivId + '_list').html('').append($('<ul/>').attr({
+                    'id': '_todo',
+                    'class': 'todo-list'
+                }));
+                
+                for (var i = 0; i < userTasks.length; i++) {
+                    $('#_todo').append($('<li/>').attr({
+                        'id': userTasks[i].userId
+                    }).append($('<span/>').append($('<input/>').attr({
+                        'type': 'checkbox'
+                    }))).append($('<span/>').attr({
+                        'class': 'taskinfo'
+                    }).text(userTasks[i].description))
+                        .append($('<span/>').attr({
+                            'class': 'taskdate'
+                        }).text("Created: " + userTasks[i].creationDate))
+                        .append($('<span/>').text('x').css({
+                            'float': 'right',
+                            'color': 'black',
+                            'cursor': 'pointer',
+                            'title': 'Leave chat'
+                        }).click(function () {
+                        })));
+                }
+            } else {
+                $('#' + _elementDivId + '_list').append($('<h5/>').html('No tasks yet)'));
+            }
+        };
 
-            $('#_todo').append($('<li/>').append($('<span/>').append($('<input/>').attr({
-                'type': 'checkbox'
-            }))).append($('<span/>').attr({
-                'class': 'taskinfo'
-            }).text(taskInfo.description))
-                .append($('<span/>').attr({
-                    'class': 'taskdate'
-                }).text("Created: " + (Date.now())))
-                .append($('<span/>').text('x').css({
-                    'float': 'right',
-                    'color': 'black',
-                    'cursor': 'pointer',
-                    'title': 'Leave chat'
-                }).click(function () {
-                })));
-        }
+        var _onTaskCreated = function (taskInfo) {
+            $('#' + _elementDivId + '_box_err').html('');
+            _updateTaskList(taskInfo.userTasks);
+        };
+
+        var _onTaskCreationFailed = function (message) {
+            _taskCreationFailed(message);
+        };
+
+        var _taskCreationFailed = function (message) {
+            $('#' + _elementDivId + '_box_err').html($('<span/>').text(message));
+        };
 
         return {
             'initialize': _initialize

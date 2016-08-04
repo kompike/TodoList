@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.javaclasses.todolist.model.service.ErrorMessage.TASK_DESCRIPTION_CANNOT_BE_EMPTY;
 import static com.javaclasses.todolist.webapp.TestUtils.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -53,7 +54,7 @@ public class TaskControllerShould {
         final String responseContent = getResponseContent(httpEntity);
 
         assertEquals("Task with empty description was registered.",
-                "{\"errorMessage\":\"Task description cannot be empty\"}", responseContent);
+                "{\"errorMessage\":\"" + TASK_DESCRIPTION_CANNOT_BE_EMPTY.toString() + "\"}", responseContent);
 
     }
 

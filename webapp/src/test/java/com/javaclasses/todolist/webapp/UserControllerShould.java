@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.javaclasses.todolist.model.service.ErrorMessage.*;
 import static com.javaclasses.todolist.webapp.TestUtils.getResponseContent;
 import static com.javaclasses.todolist.webapp.TestUtils.loginUser;
 import static com.javaclasses.todolist.webapp.TestUtils.registerUser;
@@ -40,7 +41,7 @@ public class UserControllerShould {
         final String responseContent = getResponseContent(httpEntity);
 
         assertEquals("Already existing user was registered.",
-                "{\"errorMessage\":\"User with given email already exists\"}", responseContent);
+                "{\"errorMessage\":\"" + USER_ALREADY_EXISTS.toString() + "\"}", responseContent);
     }
 
     @Test
@@ -54,7 +55,7 @@ public class UserControllerShould {
         final String responseContent = getResponseContent(httpEntity);
 
         assertEquals("User with incorrect email was registered.",
-                "{\"errorMessage\":\"Invalid email format\"}", responseContent);
+                "{\"errorMessage\":\"" + INVALID_EMAIL_FORMAT.toString() + "\"}", responseContent);
     }
 
     @Test
@@ -69,7 +70,7 @@ public class UserControllerShould {
         final String responseContent = getResponseContent(httpEntity);
 
         assertEquals("User with different passwords was registered.",
-                "{\"errorMessage\":\"Passwords must be equal\"}", responseContent);
+                "{\"errorMessage\":\"" + PASSWORDS_DOES_NOT_MATCH.toString() + "\"}", responseContent);
     }
 
     @Test
@@ -83,7 +84,7 @@ public class UserControllerShould {
         final String responseContent = getResponseContent(httpEntity);
 
         assertEquals("User with empty email was registered.",
-                "{\"errorMessage\":\"All fields must be filled\"}", responseContent);
+                "{\"errorMessage\":\"" + ALL_FIELDS_MUST_BE_FILLED.toString() + "\"}", responseContent);
     }
 
     @Test
@@ -100,7 +101,7 @@ public class UserControllerShould {
         final String responseContent = getResponseContent(httpEntity);
 
         assertEquals("Already existing user was registered.",
-                "{\"errorMessage\":\"User with given email already exists\"}", responseContent);
+                "{\"errorMessage\":\"" + USER_ALREADY_EXISTS.toString() + "\"}", responseContent);
     }
 
     @Test
@@ -132,7 +133,7 @@ public class UserControllerShould {
         final String responseContent = getResponseContent(httpEntity);
 
         assertEquals("Not registered user logged in.",
-                "{\"errorMessage\":\"Incorrect email/password\"}", responseContent);
+                "{\"errorMessage\":\"" + INCORRECT_CREDENTIALS.toString() + "\"}", responseContent);
     }
 
     @Test
@@ -148,6 +149,6 @@ public class UserControllerShould {
         final String responseContent = getResponseContent(httpEntity);
 
         assertEquals("User with incorrect password logged in.",
-                "{\"errorMessage\":\"Incorrect email/password\"}", responseContent);
+                "{\"errorMessage\":\"" + INCORRECT_CREDENTIALS.toString() + "\"}", responseContent);
     }
 }

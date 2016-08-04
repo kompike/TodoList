@@ -1,9 +1,10 @@
 package com.javaclasses.todolist.webapp.controller;
 
-import com.javaclasses.todolist.model.dto.*;
+import com.javaclasses.todolist.model.dto.LoginDTO;
+import com.javaclasses.todolist.model.dto.RegistrationDTO;
+import com.javaclasses.todolist.model.dto.SecurityTokenDTO;
+import com.javaclasses.todolist.model.dto.UserDTO;
 import com.javaclasses.todolist.model.entity.tinytype.SecurityTokenId;
-import com.javaclasses.todolist.model.entity.tinytype.TaskId;
-import com.javaclasses.todolist.model.entity.tinytype.UserId;
 import com.javaclasses.todolist.model.service.TaskService;
 import com.javaclasses.todolist.model.service.UserAuthenticationException;
 import com.javaclasses.todolist.model.service.UserRegistrationException;
@@ -17,14 +18,10 @@ import com.javaclasses.todolist.webapp.handler.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
+import static com.javaclasses.todolist.webapp.HandlerRegistry.*;
+import static com.javaclasses.todolist.webapp.controller.ControllerUtils.*;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static javax.ws.rs.HttpMethod.POST;
 
 /**
  * Realization of {@link Handler} interface for user management
@@ -32,23 +29,6 @@ import static javax.ws.rs.HttpMethod.POST;
 public class UserController {
 
     private final Logger log = LoggerFactory.getLogger(UserController.class);
-
-    // Possible URLs
-    private static final String USER_REGISTRATION_URL = "/api/register";
-    private static final String LOGIN_URL = "/api/login";
-    private static final String LOGOUT_URL = "/api/logout";
-
-    // Possible request methods
-    private static final String POST_METHOD = POST;
-
-    // Request parameter names
-    private static final String EMAIL_PARAMETER = "email";
-    private static final String PASSWORD_PARAMETER = "password";
-    private static final String CONFIRM_PASSWORD_PARAMETER = "confirmPassword";
-    private static final String ERROR_MESSAGE_PARAMETER = "errorMessage";
-    private static final String USER_TASKS_PARAMETER = "userTasks";
-    private static final String MESSAGE_PARAMETER = "message";
-    private static final String TOKEN_ID_PARAMETER = "tokenId";
 
     private final TaskService taskService = TaskServiceImpl.getInstance();
     private final UserService userService = UserServiceImpl.getInstance(taskService);
@@ -150,47 +130,6 @@ public class UserController {
 
             return jsonEntity;
         });
-    }
-
-    private String getUserTaskList(UserId userId) {
-
-        final StringBuilder builder = new StringBuilder("[");
-        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-        final Collection<TaskDTO> allUserTasks = taskService.findAllUserTasks(userId);
-
-        for (TaskDTO taskDTO : allUserTasks) {
-            final JsonEntity taskJson = new JsonEntity();
-            final TaskId chatId = taskDTO.getTaskId();
-            taskJson.add("taskId", String.valueOf(chatId.getId()));
-            taskJson.add("description", taskDTO.getDescription());
-            taskJson.add("creationDate", taskDTO.getCreationDate().format(formatter));
-            taskJson.add("status", String.valueOf(taskDTO.isActive()));
-            builder.append(taskJson.generateJson()).append(",");
-        }
-
-        if (builder.length() > 1) {
-            builder.setLength(builder.length() - 1);
-        }
-        builder.append("]");
-
-        return builder.toString();
-    }
-
-
-    private UserDTO getUserByToken(HttpServletRequest request) {
-
-        final String requestTokenId = request.getParameter(TOKEN_ID_PARAMETER);
-        final SecurityTokenId tokenId = new SecurityTokenId(Long.valueOf(requestTokenId));
-        return userService.findByToken(tokenId);
-    }
-
-    private JsonEntity getUserNotAuthorizedJson(JsonEntity jsonEntity) {
-
-        jsonEntity.add(ERROR_MESSAGE_PARAMETER, "User not authorized");
-        jsonEntity.setResponseStatusCode(SC_FORBIDDEN);
-
-        return jsonEntity;
     }
 
     public static UserController init() {

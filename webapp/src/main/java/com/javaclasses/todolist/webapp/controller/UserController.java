@@ -4,6 +4,7 @@ import com.javaclasses.todolist.model.dto.LoginDTO;
 import com.javaclasses.todolist.model.dto.RegistrationDTO;
 import com.javaclasses.todolist.model.dto.SecurityTokenDTO;
 import com.javaclasses.todolist.model.dto.TaskDTO;
+import com.javaclasses.todolist.model.entity.tinytype.TaskId;
 import com.javaclasses.todolist.model.entity.tinytype.UserId;
 import com.javaclasses.todolist.model.service.TaskService;
 import com.javaclasses.todolist.model.service.UserAuthenticationException;
@@ -18,6 +19,7 @@ import com.javaclasses.todolist.webapp.handler.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -106,7 +108,7 @@ public class UserController {
             final JsonEntity jsonEntity = new JsonEntity();
             try {
                 final SecurityTokenDTO tokenDTO = userService.login(loginDTO);
-                final Collection<TaskDTO> tasks = getUserChatList(tokenDTO.getUserId());
+                final String tasks = getUserTaskList(tokenDTO.getUserId());
 
                 jsonEntity.add(TOKEN_ID_PARAMETER, tokenDTO.getTokenId().toString());
                 jsonEntity.add(EMAIL_PARAMETER, email);
@@ -127,8 +129,29 @@ public class UserController {
         });
     }
 
-    private Collection<TaskDTO> getUserChatList(UserId userId) {
-        return taskService.findAllUserTasks(userId);
+    private String getUserTaskList(UserId userId) {
+
+        final StringBuilder builder = new StringBuilder("[");
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        final Collection<TaskDTO> allUserTasks = taskService.findAllUserTasks(userId);
+
+        for (TaskDTO taskDTO : allUserTasks) {
+            final JsonEntity taskJson = new JsonEntity();
+            final TaskId chatId = taskDTO.getTaskId();
+            taskJson.add("taskId", String.valueOf(chatId.getId()));
+            taskJson.add("description", taskDTO.getDescription());
+            taskJson.add("creationDate", taskDTO.getCreationDate().format(formatter));
+            taskJson.add("status", String.valueOf(taskDTO.isActive()));
+            builder.append(taskJson.generateJson()).append(",");
+        }
+
+        if (builder.length() > 1) {
+            builder.setLength(builder.length() - 1);
+        }
+        builder.append("]");
+
+        return builder.toString();
     }
 
     public static UserController init() {

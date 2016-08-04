@@ -17,6 +17,7 @@ import com.javaclasses.todolist.webapp.handler.Handler;
 import com.javaclasses.todolist.webapp.handler.RequestContext;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
 import static javax.servlet.http.HttpServletResponse.*;
@@ -61,7 +62,7 @@ public class TaskController {
             final String description = request.getParameter("description");
             try {
                 taskService.add(new AddedTaskDTO(description, user.getUserId()));
-                final Collection<TaskDTO> tasks = getUserChatList(user.getUserId());
+                final String tasks = getUserTaskList(user.getUserId());
 
                 jsonEntity.add(USER_TASKS_PARAMETER, tasks);
                 jsonEntity.add(MESSAGE_PARAMETER, "Chat successfully created");
@@ -76,7 +77,7 @@ public class TaskController {
     }
 
     private void completeTask() {
-        handlerRegistry.registerHandler(new RequestContext("/api/tasks", POST_METHOD), (request, response) -> {
+        handlerRegistry.registerHandler(new RequestContext("/api/tasks/complete", POST_METHOD), (request, response) -> {
 
             final JsonEntity jsonEntity = new JsonEntity();
 
@@ -96,7 +97,7 @@ public class TaskController {
     }
 
     private void reopenTask() {
-        handlerRegistry.registerHandler(new RequestContext("/api/tasks", POST_METHOD), (request, response) -> {
+        handlerRegistry.registerHandler(new RequestContext("/api/tasks/reopen", POST_METHOD), (request, response) -> {
 
             final JsonEntity jsonEntity = new JsonEntity();
 
@@ -116,7 +117,7 @@ public class TaskController {
     }
 
     private void deleteTask() {
-        handlerRegistry.registerHandler(new RequestContext("/api/tasks", POST_METHOD), (request, response) -> {
+        handlerRegistry.registerHandler(new RequestContext("/api/tasks/delete", POST_METHOD), (request, response) -> {
 
             final JsonEntity jsonEntity = new JsonEntity();
 
@@ -151,10 +152,30 @@ public class TaskController {
         return jsonEntity;
     }
 
-    private Collection<TaskDTO> getUserChatList(UserId userId) {
-        return taskService.findAllUserTasks(userId);
-    }
+    private String getUserTaskList(UserId userId) {
 
+        final StringBuilder builder = new StringBuilder("[");
+        final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        final Collection<TaskDTO> allUserTasks = taskService.findAllUserTasks(userId);
+
+        for (TaskDTO taskDTO : allUserTasks) {
+            final JsonEntity taskJson = new JsonEntity();
+            final TaskId chatId = taskDTO.getTaskId();
+            taskJson.add("taskId", String.valueOf(chatId.getId()));
+            taskJson.add("description", taskDTO.getDescription());
+            taskJson.add("creationDate", taskDTO.getCreationDate().format(formatter));
+            taskJson.add("status", String.valueOf(taskDTO.isActive()));
+            builder.append(taskJson.generateJson()).append(",");
+        }
+
+        if (builder.length() > 1) {
+            builder.setLength(builder.length() - 1);
+        }
+        builder.append("]");
+
+        return builder.toString();
+    }
     public static TaskController init() {
         return new TaskController();
     }

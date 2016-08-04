@@ -1,9 +1,8 @@
 package com.javaclasses.todolist.webapp;
 
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 
@@ -13,8 +12,13 @@ import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
  */
 public class JsonEntity {
 
-    private final JsonObject jsonObject = new JsonObject();
     private int responseStatusCode;
+
+    private final Map<String, String> jsonObject = new LinkedHashMap<>();
+
+    public void add(String key, String value) {
+        jsonObject.put(key, value);
+    }
 
     /*package*/ int getResponseStatusCode() {
 
@@ -29,17 +33,30 @@ public class JsonEntity {
         this.responseStatusCode = responseStatusCode;
     }
 
-    public void add(String key, Object value){
-        final JsonElement jsonElement = new Gson().toJsonTree(value);
-        jsonObject.add(key, jsonElement);
-    }
-
     /**
      * Generates string in JSON format
      * @return String in JSON format
      */
-    /*package*/ String generateJson() {
+    public String generateJson() {
 
-        return new Gson().toJson(jsonObject);
+        final StringBuilder builder = new StringBuilder();
+        builder.append("{");
+
+        for (Map.Entry<String, String> entry : jsonObject.entrySet()) {
+            builder.append("\"").append(entry.getKey());
+            if (entry.getValue().startsWith("[")) {
+                builder.append("\":").append(entry.getValue()).append(",");
+            } else {
+                builder.append("\":\"").append(entry.getValue()).append("\",");
+            }
+        }
+
+        if (builder.length() > 1) {
+            builder.setLength(builder.length() - 1);
+        }
+
+        builder.append("}");
+
+        return builder.toString();
     }
 }

@@ -4,7 +4,7 @@ import com.javaclasses.todolist.model.entity.tinytype.TaskDescription;
 import com.javaclasses.todolist.model.entity.tinytype.TaskId;
 import com.javaclasses.todolist.model.entity.tinytype.UserId;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Task entity implementation
@@ -13,13 +13,13 @@ public class Task implements Entity<TaskId> {
 
     private TaskId taskId;
     private TaskDescription description;
-    private Date creationDate;
+    private LocalDateTime creationDate;
     private boolean isActive;
     private UserId owner;
 
     public Task(TaskDescription description, UserId owner) {
         this.description = description;
-        this.creationDate = new Date();
+        this.creationDate = LocalDateTime.now();
         this.isActive = true;
         this.owner = owner;
     }
@@ -38,7 +38,7 @@ public class Task implements Entity<TaskId> {
         return description;
     }
 
-    public Date getCreationDate() {
+    public LocalDateTime getCreationDate() {
         return creationDate;
     }
 

@@ -3,7 +3,7 @@ package com.javaclasses.todolist.model.dto;
 import com.javaclasses.todolist.model.entity.tinytype.TaskId;
 import com.javaclasses.todolist.model.entity.tinytype.UserId;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * Data transfer object for task entity
@@ -12,11 +12,11 @@ public class TaskDTO {
 
     private TaskId taskId;
     private String description;
-    private Date creationDate;
+    private LocalDateTime creationDate;
     private boolean isActive;
     private UserId owner;
 
-    public TaskDTO(TaskId taskId, String description, Date creationDate, boolean isActive, UserId owner) {
+    public TaskDTO(TaskId taskId, String description, LocalDateTime creationDate, boolean isActive, UserId owner) {
         this.taskId = taskId;
         this.description = description;
         this.creationDate = creationDate;
@@ -34,6 +34,10 @@ public class TaskDTO {
 
     public boolean isActive() {
         return isActive;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
     }
 
     @Override

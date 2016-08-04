@@ -90,6 +90,7 @@ public class TaskController {
 
             final String taskId = request.getParameter("taskId");
             taskService.complete(new TaskId(Long.valueOf(taskId)));
+            jsonEntity.add("taskId", taskId);
             jsonEntity.add(MESSAGE_PARAMETER, "Task successfully completed");
             jsonEntity.setResponseStatusCode(SC_OK);
 
@@ -110,6 +111,7 @@ public class TaskController {
 
             final String taskId = request.getParameter("taskId");
             taskService.reopen(new TaskId(Long.valueOf(taskId)));
+            jsonEntity.add("taskId", taskId);
             jsonEntity.add(MESSAGE_PARAMETER, "Task successfully reopened");
             jsonEntity.setResponseStatusCode(SC_OK);
 

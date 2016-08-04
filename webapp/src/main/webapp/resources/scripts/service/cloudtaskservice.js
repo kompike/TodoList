@@ -21,8 +21,40 @@ var TaskService = function (eventBus, serverURL) {
             });
     };
 
+    var _onTaskCompleted = function (taskInfo) {
+
+        $.post(serverURL + "api/tasks/complete",
+            {
+                taskId: taskInfo.taskId,
+                tokenId: taskInfo.tokenId
+
+            }, function (xhr) {
+
+                var data = eval("(" + xhr + ")");
+                eventBus.post(Events.TASK_COMPLETED, data.taskId);
+
+            }, 'text');
+    };
+
+    var _onTaskReopened = function (taskInfo) {
+
+        $.post(serverURL + "api/tasks/reopen",
+            {
+                taskId: taskInfo.taskId,
+                tokenId: taskInfo.tokenId
+
+            }, function (xhr) {
+
+                var data = eval("(" + xhr + ")");
+                eventBus.post(Events.TASK_REOPENED, data.taskId);
+
+            }, 'text');
+    };
+
     return {
-        'onTaskAdded': _onTaskAdded
+        'onTaskAdded': _onTaskAdded,
+        'onTaskCompleted': _onTaskCompleted,
+        'onTaskReopened': _onTaskReopened
     };
 };
 

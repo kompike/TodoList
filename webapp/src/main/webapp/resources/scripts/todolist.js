@@ -18,6 +18,8 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
         eventBus.subscribe(Events.LOGIN_SUCCESSFULL, dashboardComponent.initialize);
         eventBus.subscribe(Events.LOGIN_ATTEMPT, userService.onUserLogin);
         eventBus.subscribe(Events.NEW_TASK_ADDITION, taskService.onTaskAdded);
+        eventBus.subscribe(Events.TASK_COMPLETION, taskService.onTaskCompleted);
+        eventBus.subscribe(Events.TASK_REOPENING, taskService.onTaskReopened);
 
         registrationComponent.initialize();
     };
@@ -186,6 +188,8 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
 
             eventBus.subscribe(Events.TASK_CREATED, _onTaskCreated);
             eventBus.subscribe(Events.TASK_CREATION_FAILED, _onTaskCreationFailed);
+            eventBus.subscribe(Events.TASK_COMPLETED, _onTaskCompleted);
+            eventBus.subscribe(Events.TASK_REOPENED, _onTaskReopened);
 
             $('#' + rootDivId).append($('<div/>').attr('id', _elementDivId));
             $('#' + _elementDivId).append($('<div/>').attr('id', _elementDivId + '_header'));
@@ -225,15 +229,31 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
                     'id': '_todo',
                     'class': 'todo-list'
                 }));
-                
+
                 for (var i = 0; i < userTasks.length; i++) {
+
+                    var currentTaskId = userTasks[i].taskId;
+
                     $('#_todo').append($('<li/>').attr({
-                        'id': userTasks[i].userId
+                        'id': currentTaskId
                     }).append($('<span/>').append($('<input/>').attr({
+                        'id': currentTaskId,
                         'type': 'checkbox'
-                    }))).append($('<span/>').attr({
-                        'class': 'taskinfo'
-                    }).text(userTasks[i].description))
+                    }).change(function () {
+                        var taskInfo = {
+                            'taskId': $(this).attr('id'),
+                            'tokenId': localStorage.getItem('tokenId')
+                        };
+                        if (this.checked) {
+                            eventBus.post(Events.TASK_COMPLETION, taskInfo);
+                        } else {
+                            eventBus.post(Events.TASK_REOPENING, taskInfo);
+                        }
+                    })))
+                        .append($('<span/>').attr({
+                            'id': 'description_' + currentTaskId,
+                            'class': 'taskinfo'
+                        }).text(userTasks[i].description))
                         .append($('<span/>').attr({
                             'class': 'taskdate'
                         }).text("Created: " + userTasks[i].creationDate))
@@ -248,6 +268,16 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
             } else {
                 $('#' + _elementDivId + '_list').append($('<h5/>').html('No tasks yet)'));
             }
+        };
+
+        var _onTaskCompleted = function (taskId) {
+            $('#' + taskId).css({'background': '#f4f7f8'});
+            $('#description_' + taskId).css({'text-decoration': 'line-through'});
+        };
+
+        var _onTaskReopened = function (taskId) {
+            $('#' + taskId).css({'background': '#fff'});
+            $('#description_' + taskId).css({'text-decoration': 'none'});
         };
 
         var _onTaskCreated = function (taskInfo) {

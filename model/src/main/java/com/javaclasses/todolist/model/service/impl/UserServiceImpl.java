@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.javaclasses.todolist.model.service.ErrorMessage.*;
 
 /**
  * Implementation of {@link UserService} interface
@@ -72,10 +73,10 @@ public class UserServiceImpl implements UserService {
         if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
 
             if (log.isWarnEnabled()) {
-                log.warn("All fields must be filled");
+                log.warn(ALL_FIELDS_MUST_BE_FILLED.toString());
             }
 
-            throw new UserRegistrationException("All fields must be filled");
+            throw new UserRegistrationException(ALL_FIELDS_MUST_BE_FILLED);
         }
 
         final Pattern pattern = Pattern.compile(EMAIL_PATTERN);
@@ -84,28 +85,28 @@ public class UserServiceImpl implements UserService {
         if (!matcher.matches()) {
 
             if (log.isWarnEnabled()) {
-                log.warn("Invalid email format");
+                log.warn(INVALID_EMAIL_FORMAT.toString());
             }
 
-            throw new UserRegistrationException("Invalid email format");
+            throw new UserRegistrationException(INVALID_EMAIL_FORMAT);
         }
 
         if (userRepository.findByEmail(email) != null) {
 
             if (log.isWarnEnabled()) {
-                log.warn("User with given email already exists");
+                log.warn(USER_ALREADY_EXISTS.toString());
             }
 
-            throw new UserRegistrationException("User with given email already exists");
+            throw new UserRegistrationException(USER_ALREADY_EXISTS);
         }
 
         if (!password.equals(confirmPassword)){
 
             if (log.isWarnEnabled()) {
-                log.warn("Passwords must be equal");
+                log.warn(PASSWORDS_DOES_NOT_MATCH.toString());
             }
 
-            throw new UserRegistrationException("Passwords must be equal");
+            throw new UserRegistrationException(PASSWORDS_DOES_NOT_MATCH);
         }
 
         final User user = new User(new Email(email), new Password(password));
@@ -139,18 +140,18 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
 
             if (log.isWarnEnabled()) {
-                log.warn("Incorrect email/password");
+                log.warn(INCORRECT_CREDENTIALS.toString());
             }
 
-            throw new UserAuthenticationException("Incorrect email/password");
+            throw new UserAuthenticationException(INCORRECT_CREDENTIALS);
         }
         if (!user.getPassword().getPassword().equals(password)) {
 
             if (log.isWarnEnabled()) {
-                log.warn("Incorrect email/password");
+                log.warn(INCORRECT_CREDENTIALS.toString());
             }
 
-            throw new UserAuthenticationException("Incorrect email/password");
+            throw new UserAuthenticationException(INCORRECT_CREDENTIALS);
         }
 
         final SecurityToken token = new SecurityToken(user.getId());

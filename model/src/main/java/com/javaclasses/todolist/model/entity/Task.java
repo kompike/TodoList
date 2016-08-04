@@ -14,13 +14,13 @@ public class Task implements Entity<TaskId> {
     private TaskId taskId;
     private TaskDescription description;
     private LocalDateTime creationDate;
-    private boolean isActive;
+    private boolean isCompleted;
     private UserId owner;
 
     public Task(TaskDescription description, UserId owner) {
         this.description = description;
         this.creationDate = LocalDateTime.now();
-        this.isActive = false;
+        this.isCompleted = false;
         this.owner = owner;
     }
 
@@ -42,16 +42,16 @@ public class Task implements Entity<TaskId> {
         return creationDate;
     }
 
-    public boolean isActive() {
-        return isActive;
+    public boolean isCompleted() {
+        return isCompleted;
     }
 
     public UserId getOwner() {
         return owner;
     }
 
-    public void setStatus(boolean active) {
-        isActive = active;
+    public void setCompletionStatus(boolean status) {
+        isCompleted = status;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class Task implements Entity<TaskId> {
 
         Task task = (Task) o;
 
-        if (isActive != task.isActive) return false;
+        if (isCompleted != task.isCompleted) return false;
         if (!taskId.equals(task.taskId)) return false;
         if (!description.equals(task.description)) return false;
         if (!creationDate.equals(task.creationDate)) return false;

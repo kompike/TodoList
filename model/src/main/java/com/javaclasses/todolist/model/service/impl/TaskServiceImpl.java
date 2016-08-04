@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.javaclasses.todolist.model.service.ErrorMessage.TASK_DESCRIPTION_CANNOT_BE_EMPTY;
 
 /**
  * Implementation of {@link TaskService} interface
@@ -56,10 +57,10 @@ public class TaskServiceImpl implements TaskService {
         if (description.isEmpty()) {
 
             if (log.isWarnEnabled()) {
-                log.warn("Task description cannot be empty");
+                log.warn(TASK_DESCRIPTION_CANNOT_BE_EMPTY.toString());
             }
 
-            throw new TaskCreationException("Task description cannot be empty");
+            throw new TaskCreationException(TASK_DESCRIPTION_CANNOT_BE_EMPTY);
         }
 
         final Task task = new Task(new TaskDescription(description), owner);
@@ -121,6 +122,31 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Collection<TaskDTO> findAll() {
+
+        if (log.isInfoEnabled()) {
+            log.info("Start looking for all tasks...");
+        }
+
+        final Collection<Task> tasks = taskRepository.findAll();
+
+        final Collection<TaskDTO> taskDTOs = new ArrayList<>();
+
+        for (Task task : tasks) {
+            taskDTOs.add(createTaskDTOFromTask(task));
+        }
+
+        try {
+            return taskDTOs;
+        } finally {
+
+            if (log.isInfoEnabled()) {
+                log.info("Found " + taskDTOs.size() + " tasks.");
+            }
+        }
+    }
+
+    @Override
     public void complete(TaskId taskId) {
 
         if (log.isInfoEnabled()) {
@@ -128,7 +154,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         final Task task = taskRepository.findById(taskId);
-        task.setStatus(true);
+        task.setCompletionStatus(true);
 
         if (log.isInfoEnabled()) {
             log.info("Task successfully completed.");
@@ -144,7 +170,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         final Task task = taskRepository.findById(taskId);
-        task.setStatus(false);
+        task.setCompletionStatus(false);
 
         if (log.isInfoEnabled()) {
             log.info("Task successfully reopened.");
@@ -169,6 +195,6 @@ public class TaskServiceImpl implements TaskService {
 
     private static TaskDTO createTaskDTOFromTask(Task task) {
         return new TaskDTO(task.getId(), task.getDescription().getDescription(),
-                task.getCreationDate(), task.isActive(), task.getOwner());
+                task.getCreationDate(), task.isCompleted(), task.getOwner());
     }
 }

@@ -7,7 +7,7 @@ public class EntityId {
 
     private final long id;
 
-    public EntityId(long id) {
+    /*package*/ EntityId(long id) {
         this.id = id;
     }
 

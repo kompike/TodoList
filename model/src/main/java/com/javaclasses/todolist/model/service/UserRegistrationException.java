@@ -5,7 +5,7 @@ package com.javaclasses.todolist.model.service;
  */
 public class UserRegistrationException extends Exception {
 
-    public UserRegistrationException(String message) {
-        super(message);
+    public UserRegistrationException(ErrorMessage message) {
+        super(message.toString());
     }
 }

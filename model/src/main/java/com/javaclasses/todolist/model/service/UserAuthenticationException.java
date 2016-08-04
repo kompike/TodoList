@@ -5,7 +5,7 @@ package com.javaclasses.todolist.model.service;
  */
 public class UserAuthenticationException extends Exception {
 
-    public UserAuthenticationException(String message) {
-        super(message);
+    public UserAuthenticationException(ErrorMessage message) {
+        super(message.toString());
     }
 }

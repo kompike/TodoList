@@ -5,7 +5,7 @@ package com.javaclasses.todolist.model.service;
  */
 public class TaskCreationException extends Exception {
 
-    public TaskCreationException(String message) {
-        super(message);
+    public TaskCreationException(ErrorMessage message) {
+        super(message.toString());
     }
 }

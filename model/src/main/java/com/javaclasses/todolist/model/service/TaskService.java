@@ -37,6 +37,12 @@ public interface TaskService {
     Collection<TaskDTO> findAllUserTasks(UserId userId);
 
     /**
+     * Gets all tasks
+     * @return Collection of  tasks
+     */
+    Collection<TaskDTO> findAll();
+
+    /**
      * Set task task status to false
      * @param taskId Id of task to be completed
      */

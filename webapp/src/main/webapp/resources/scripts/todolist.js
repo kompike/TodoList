@@ -14,6 +14,7 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
 
         eventBus.subscribe(Events.NEW_USER_ADDITION, userService.onUserAdded);
         eventBus.subscribe(Events.USER_ALREADY_REGISTERED, loginFormComponent.initialize);
+        eventBus.subscribe(Events.USER_LOGGED_OUT, registrationComponent.initialize);
         eventBus.subscribe(Events.USER_NOT_REGISTERED, registrationComponent.initialize);
         eventBus.subscribe(Events.LOGIN_SUCCESSFULL, dashboardComponent.initialize);
         eventBus.subscribe(Events.LOGIN_ATTEMPT, userService.onUserLogin);
@@ -21,8 +22,16 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
         eventBus.subscribe(Events.TASK_COMPLETION, taskService.onTaskCompleted);
         eventBus.subscribe(Events.TASK_REOPENING, taskService.onTaskReopened);
         eventBus.subscribe(Events.TASK_DELETING, taskService.onTaskDeleted);
+        eventBus.subscribe(Events.USER_ALREADY_LOGGED_IN, taskService.onUserAlreadyLoggedIn);
+        eventBus.subscribe(Events.USER_LOGOUT, userService.onUserLogout);
 
-        registrationComponent.initialize();
+        var tokenId = localStorage.getItem('tokenId');
+
+        if (tokenId !== null) {
+            eventBus.post(Events.USER_ALREADY_LOGGED_IN, {'tokenId':tokenId});
+        } else {
+            registrationComponent.initialize();
+        }
     };
 
     var _onInputFieldEvent = function (inputDivId) {
@@ -159,7 +168,7 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
                 .append($('<h6/>').html('Not registered?'))
                 .append($('<button/>').attr('id', buttonId + "_login").text('Register').click(function () {
                     eventBus.post(Events.USER_NOT_REGISTERED, {});
-                })))
+                })));
 
             _onInputFieldEvent('input');
         };
@@ -192,6 +201,7 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
             eventBus.subscribe(Events.TASK_COMPLETED, _onTaskCompleted);
             eventBus.subscribe(Events.TASK_REOPENED, _onTaskReopened);
             eventBus.subscribe(Events.TASK_DELETED, _onTaskDeleted);
+            eventBus.subscribe(Events.USER_LOGOUT, _onLogout);
 
             $('#' + rootDivId).append($('<div/>').attr('id', _elementDivId));
             $('#' + _elementDivId).append($('<div/>').attr('id', _elementDivId + '_header'));
@@ -216,6 +226,13 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
                 .append($('<div/>').attr('id', _elementDivId + '_box_err'));
 
             $('#' + _elementDivId).append($('<div/>').attr('id', _elementDivId + '_list'));
+
+            $('#' + rootDivId).append($('<div/>').attr('id', rootDivId + '_logout')
+                .append($('<button/>').attr('id', 'logout_btn').text('Logout').click(function () {
+                    eventBus.post(Events.USER_LOGOUT, {
+                        'tokenId': localStorage.getItem('tokenId')
+                    });
+                })));
 
             $('#' + _elementDivId + '_description').focus();
 
@@ -271,6 +288,12 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
                             };
                             eventBus.post(Events.TASK_DELETING, taskInfo);
                         })));
+
+                    if (userTasks[i].status == 'true') {
+                        $('#checkbox_' + currentTaskId).attr('checked','checked');
+                        $('#' + currentTaskId).css({'background': '#f4f7f8'});
+                        $('#description_' + currentTaskId).css({'text-decoration': 'line-through'});
+                    }
                 }
             } else {
                 $('#' + _elementDivId + '_list').append($('<h5/>').html('No tasks yet)'));
@@ -306,6 +329,11 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
 
         var _taskCreationFailed = function (message) {
             $('#' + _elementDivId + '_box_err').html($('<span/>').text(message));
+        };
+
+        var _onLogout = function () {
+            $('#' + rootDivId + '_dashboard').remove();
+            $('#' + rootDivId + '_logout').remove();
         };
 
         return {

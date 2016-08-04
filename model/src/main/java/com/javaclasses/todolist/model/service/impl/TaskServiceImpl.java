@@ -128,7 +128,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         final Task task = taskRepository.findById(taskId);
-        task.setStatus(false);
+        task.setStatus(true);
 
         if (log.isInfoEnabled()) {
             log.info("Task successfully completed.");
@@ -144,7 +144,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         final Task task = taskRepository.findById(taskId);
-        task.setStatus(true);
+        task.setStatus(false);
 
         if (log.isInfoEnabled()) {
             log.info("Task successfully reopened.");

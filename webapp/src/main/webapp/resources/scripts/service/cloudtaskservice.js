@@ -66,11 +66,26 @@ var TaskService = function (eventBus, serverURL) {
             }, 'text');
     };
 
+    var _onUserAlreadyLoggedIn = function (tokenId) {
+
+        $.get(serverURL + "api/tasks",
+            {
+                tokenId: tokenId
+
+            }, function (xhr) {
+
+                var data = eval("(" + xhr + ")");
+                eventBus.post(Events.LOGIN_SUCCESSFULL, data);
+
+            }, 'text');
+    };
+
     return {
         'onTaskAdded': _onTaskAdded,
         'onTaskCompleted': _onTaskCompleted,
         'onTaskReopened': _onTaskReopened,
-        'onTaskDeleted': _onTaskDeleted
+        'onTaskDeleted': _onTaskDeleted,
+        'onUserAlreadyLoggedIn': _onUserAlreadyLoggedIn
     };
 };
 

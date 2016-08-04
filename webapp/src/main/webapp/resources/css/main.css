@@ -12,7 +12,7 @@ div[id$="_register"], div[id$="_login"] {
     border-radius: 8px;
 }
 
-div[id$="_registered"], div[id$="_to_registration"] {
+div[id$="_registered"], div[id$="_to_registration"], div[id$="_logout"] {
     max-width: 200px;
     margin: 25px auto;
     padding: 5px 10px;

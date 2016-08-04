@@ -20,7 +20,7 @@ public class Task implements Entity<TaskId> {
     public Task(TaskDescription description, UserId owner) {
         this.description = description;
         this.creationDate = LocalDateTime.now();
-        this.isActive = true;
+        this.isActive = false;
         this.owner = owner;
     }
 

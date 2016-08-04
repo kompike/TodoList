@@ -44,6 +44,7 @@ public class TaskController {
     private TaskController() {
         addNewTask();
         completeTask();
+        getAllTasksTask();
         reopenTask();
         deleteTask();
     }
@@ -72,6 +73,25 @@ public class TaskController {
                 jsonEntity.add(ERROR_MESSAGE_PARAMETER, e.getMessage());
                 jsonEntity.setResponseStatusCode(SC_INTERNAL_SERVER_ERROR);
             }
+
+            return jsonEntity;
+        });
+    }
+
+    private void getAllTasksTask() {
+        handlerRegistry.registerHandler(new RequestContext("/api/tasks", "GET"), (request, response) -> {
+
+            final JsonEntity jsonEntity = new JsonEntity();
+
+            final UserDTO user = getUserByToken(request);
+
+            if (user == null) {
+                return getUserNotAuthorizedJson(jsonEntity);
+            }
+            final String tasks = getUserTaskList(user.getUserId());
+
+            jsonEntity.add(USER_TASKS_PARAMETER, tasks);
+            jsonEntity.setResponseStatusCode(SC_OK);
 
             return jsonEntity;
         });

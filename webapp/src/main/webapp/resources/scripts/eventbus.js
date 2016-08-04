@@ -41,7 +41,7 @@ var EventBus = function(){
         "post": _post,
         "subscribe": _subcribe
     };
-}
+};
 
 if (typeof define !== 'function') {
     var define = require('amdefine')(module);

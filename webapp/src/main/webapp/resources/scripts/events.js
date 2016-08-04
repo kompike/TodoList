@@ -20,7 +20,7 @@ var Events = {
     USER_ALREADY_LOGGED_IN : 'USER_ALREADY_LOGGED_IN',
     USER_LOGOUT : 'USER_LOGOUT',
     USER_LOGGED_OUT : 'USER_LOGGED_OUT'
-}
+};
 
 if (typeof define !== 'function') {
     var define = require('amdefine')(module);

@@ -2,11 +2,11 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
 
     var _initialize = function () {
 
+        $('<div/>').appendTo('body').attr('id', rootDivId);
+
         var registrationDivId = rootDivId + '_register';
         var loginDivId = rootDivId + '_login';
         var dashboardDivId = rootDivId + '_dashboard';
-
-        $('<div/>').appendTo('body').attr('id', rootDivId);
 
         var registrationComponent = new RegistrationFormComponent(registrationDivId);
         var loginFormComponent = new LoginFormComponent(loginDivId);
@@ -16,13 +16,13 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
         eventBus.subscribe(Events.USER_ALREADY_REGISTERED, loginFormComponent.initialize);
         eventBus.subscribe(Events.USER_LOGGED_OUT, registrationComponent.initialize);
         eventBus.subscribe(Events.USER_NOT_REGISTERED, registrationComponent.initialize);
+        eventBus.subscribe(Events.USER_ALREADY_LOGGED_IN, taskService.onUserAlreadyLoggedIn);
         eventBus.subscribe(Events.LOGIN_SUCCESSFULL, dashboardComponent.initialize);
         eventBus.subscribe(Events.LOGIN_ATTEMPT, userService.onUserLogin);
         eventBus.subscribe(Events.NEW_TASK_ADDITION, taskService.onTaskAdded);
         eventBus.subscribe(Events.TASK_COMPLETION, taskService.onTaskCompleted);
         eventBus.subscribe(Events.TASK_REOPENING, taskService.onTaskReopened);
         eventBus.subscribe(Events.TASK_DELETING, taskService.onTaskDeleted);
-        eventBus.subscribe(Events.USER_ALREADY_LOGGED_IN, taskService.onUserAlreadyLoggedIn);
         eventBus.subscribe(Events.USER_LOGOUT, userService.onUserLogout);
 
         var tokenId = localStorage.getItem('tokenId');
@@ -101,22 +101,29 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
         };
 
         var _onUserRegistered = function (message) {
+            _clearFields();
             $('#' + _elementDivId + '_box_err').html('');
             $('#' + _elementDivId + '_box_success').html($('<span/>').text(message));
-        }
+        };
 
         var _onUserAlreadyRegistered = function () {
             $('#' + rootDivId + '_register').remove();
             $('#' + rootDivId + '_registered').remove();
-        }
+        };
 
         var _onRegistrationFailed = function (message) {
             _registrationFailed(message);
-        }
+        };
 
         var _registrationFailed = function (message) {
             $('#' + _elementDivId + '_box_success').html('');
             $('#' + _elementDivId + '_box_err').html($('<span/>').text(message));
+        };
+        
+        var _clearFields = function() {
+            $('#' + _elementDivId + '_email').val('');
+            $('#' + _elementDivId + '_password').val('');
+            $('#' + _elementDivId + '_confirm_password').val('');            
         };
 
         return {
@@ -175,12 +182,12 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
 
         var _onLoginFailed = function (message) {
             _loginFailed(message);
-        }
+        };
 
         var _onUserLoggedIn = function () {
             $('#' + rootDivId + '_login').remove();
             $('#' + rootDivId + '_to_registration').remove();
-        }
+        };
 
         var _loginFailed = function (message) {
             $('#' + _elementDivId + '_box_err').html($('<span/>').text(message));
@@ -203,14 +210,13 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
             eventBus.subscribe(Events.TASK_DELETED, _onTaskDeleted);
             eventBus.subscribe(Events.USER_LOGOUT, _onLogout);
 
-            $('#' + rootDivId).append($('<div/>').attr('id', _elementDivId));
-            $('#' + _elementDivId).append($('<div/>').attr('id', _elementDivId + '_header'));
+            $('#' + rootDivId).append($('<div/>').attr('id', _elementDivId)
+                .append($('<div/>').attr('id', _elementDivId + '_header')));
 
             $('#' + _elementDivId + '_header')
                 .append($('<h5/>').html('Welcome to TodoList App!)'))
                 .append($('<textarea/>').attr({
-                    'id': _elementDivId + '_description',
-                    'name': 'task_description',
+                    'id': 'task_description',
                     'placeholder': 'Enter task description...'
                 }))
                 .append($('<button/>').attr({
@@ -218,7 +224,7 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
                     'class': 'add_task'
                 }).text('Add new task').click(function () {
                     var taskInfo = {
-                        'description': $('#' + _elementDivId + '_description').val(),
+                        'description': $('#task_description').val(),
                         'tokenId': localStorage.getItem('tokenId')
                     };
                     eventBus.post(Events.NEW_TASK_ADDITION, taskInfo);
@@ -234,11 +240,11 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
                     });
                 })));
 
-            $('#' + _elementDivId + '_description').focus();
+            $('#task_description').focus();
 
             _updateTaskList(userInfo.userTasks);
 
-            _onInputFieldEvent('#' + _elementDivId + '_description');
+            _onInputFieldEvent('#task_description');
         };
 
         var _updateTaskList = function (userTasks) {
@@ -301,24 +307,24 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
         };
 
         var _onTaskCompleted = function (taskId) {
-            $('#' + _elementDivId + '_description').val('');
+            $('#task_description').val('');
             $('#' + taskId).css({'background': '#f4f7f8'});
             $('#description_' + taskId).css({'text-decoration': 'line-through'});
         };
 
         var _onTaskReopened = function (taskId) {
-            $('#' + _elementDivId + '_description').val('');
+            $('#task_description').val('');
             $('#' + taskId).css({'background': '#fff'});
             $('#description_' + taskId).css({'text-decoration': 'none'});
         };
 
         var _onTaskDeleted = function (taskId) {
-            $('#' + _elementDivId + '_description').val('');
+            $('#task_description').val('');
             $('#' + taskId).remove();
         };
 
         var _onTaskCreated = function (taskInfo) {
-            $('#' + _elementDivId + '_description').val('');
+            $('#task_description').val('');
             $('#' + _elementDivId + '_box_err').html('');
             _updateTaskList(taskInfo.userTasks);
         };

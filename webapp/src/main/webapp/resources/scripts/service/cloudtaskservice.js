@@ -1,6 +1,6 @@
 var TaskService = function (eventBus, serverURL) {
 
-    var _onTaskAdded = function (taskInfo) {
+    var _addTask = function (taskInfo) {
 
         $.post(serverURL + "api/tasks",
             {
@@ -21,7 +21,7 @@ var TaskService = function (eventBus, serverURL) {
             });
     };
 
-    var _onTaskCompleted = function (taskInfo) {
+    var _completeTask = function (taskInfo) {
 
         $.post(serverURL + "api/tasks/complete",
             {
@@ -36,7 +36,7 @@ var TaskService = function (eventBus, serverURL) {
             }, 'text');
     };
 
-    var _onTaskReopened = function (taskInfo) {
+    var _reopenTask = function (taskInfo) {
 
         $.post(serverURL + "api/tasks/reopen",
             {
@@ -51,7 +51,7 @@ var TaskService = function (eventBus, serverURL) {
             }, 'text');
     };
 
-    var _onTaskDeleted = function (taskInfo) {
+    var _deleteTask = function (taskInfo) {
 
         $.post(serverURL + "api/tasks/delete",
             {
@@ -78,6 +78,25 @@ var TaskService = function (eventBus, serverURL) {
                 eventBus.post(Events.LOGIN_SUCCESSFULL, data);
 
             }, 'text');
+    };
+
+    var _onTaskAdded = function (taskInfo) {
+        _addTask(taskInfo);
+    };
+
+    var _onTaskCompleted = function (taskInfo) {
+
+        _completeTask(taskInfo);
+    };
+
+    var _onTaskReopened = function (taskInfo) {
+
+        _reopenTask(taskInfo);
+    };
+
+    var _onTaskDeleted = function (taskInfo) {
+
+        _deleteTask(taskInfo);
     };
 
     return {

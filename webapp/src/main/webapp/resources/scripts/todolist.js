@@ -1,19 +1,21 @@
-var TodoList = function (rootDivId, eventBus, userService) {
+var TodoList = function (rootDivId, eventBus, userService, taskService) {
 
     var _initialize = function () {
 
         var registrationDivId = rootDivId + '_register';
         var loginDivId = rootDivId + '_login';
+        var dashboardDivId = rootDivId + '_dashboard';
 
         $('<div/>').appendTo('body').attr('id', rootDivId);
 
         var registrationComponent = new RegistrationFormComponent(registrationDivId);
         var loginFormComponent = new LoginFormComponent(loginDivId);
+        var dashboardComponent = new DashboardComponent(dashboardDivId);
 
         eventBus.subscribe(Events.NEW_USER_ADDITION, userService.onUserAdded);
         eventBus.subscribe(Events.USER_ALREADY_REGISTERED, loginFormComponent.initialize);
         eventBus.subscribe(Events.USER_NOT_REGISTERED, registrationComponent.initialize);
-        eventBus.subscribe(Events.LOGIN_SUCCESSFULL, loginFormComponent.onUserLoggedIn);
+        eventBus.subscribe(Events.LOGIN_SUCCESSFULL, dashboardComponent.initialize);
         eventBus.subscribe(Events.LOGIN_ATTEMPT, userService.onUserLogin);
 
         registrationComponent.initialize();
@@ -71,7 +73,10 @@ var TodoList = function (rootDivId, eventBus, userService) {
                         'confirmPassword': $('#' + _elementDivId + '_confirm_password').val()
                     };
                     eventBus.post(Events.NEW_USER_ADDITION, user);
-                })))
+                })));
+
+            $('#' + _elementDivId + '_email').focus();
+
             $('#' + rootDivId).append($('<div/>').attr('id', rootDivId + '_registered')
                 .append($('<h6/>').html('Already registered?'))
                 .append($('<button/>').attr('id', buttonId + "_login").text('Login').click(function () {
@@ -112,8 +117,9 @@ var TodoList = function (rootDivId, eventBus, userService) {
 
             eventBus.subscribe(Events.LOGIN_FAILED, _onLoginFailed);
             eventBus.subscribe(Events.USER_NOT_REGISTERED, _onUserLoggedIn);
+            eventBus.subscribe(Events.LOGIN_SUCCESSFULL, _onUserLoggedIn);
 
-            $('#' + rootDivId).append($('<div/>').attr('id', _elementDivId))
+            $('#' + rootDivId).append($('<div/>').attr('id', _elementDivId));
 
             var loginFormBoxId = _elementDivId + '_box';
             var buttonId = loginFormBoxId + '_btn';
@@ -140,7 +146,9 @@ var TodoList = function (rootDivId, eventBus, userService) {
                         'password': $('#' + _elementDivId + '_password').val()
                     };
                     eventBus.post(Events.LOGIN_ATTEMPT, user);
-                })))
+                })));
+
+            $('#' + _elementDivId + '_email').focus();
 
 
             $('#' + rootDivId).append($('<div/>').attr('id', rootDivId + '_to_registration')
@@ -170,6 +178,64 @@ var TodoList = function (rootDivId, eventBus, userService) {
             'onUserLoggedIn': _onUserLoggedIn
         };
     };
+
+    var DashboardComponent = function (_elementDivId) {
+
+        var _initialize = function () {
+
+            $('#' + rootDivId).append($('<div/>').attr('id', _elementDivId));
+            $('#' + _elementDivId).append($('<div/>').attr('id', _elementDivId + '_header'));
+
+            $('#' + _elementDivId + '_header')
+                .append($('<h5/>').html('Welcome to TodoList App!)'))
+                .append($('<textarea/>').attr({
+                    'id': _elementDivId + '_description',
+                    'name': 'task_description',
+                    'placeholder': 'Enter task description...'
+                }))
+                .append($('<button/>').attr({
+                    'id': _elementDivId + '_add_task',
+                    'class': 'add_task'
+                }).text('Add new task').click(function () {
+                    _addTask({'description': $('#' + _elementDivId + '_description').val()});
+                }))
+                .append($('<div/>').attr('id', _elementDivId + '_box_err'));
+
+            $('#' + _elementDivId).append($('<div/>').attr('id', _elementDivId + '_list'));
+
+            $('#' + _elementDivId + '_description').focus();
+
+            _onInputFieldEvent('#' + _elementDivId + '_description');
+        };
+
+        var _addTask = function (taskInfo) {
+
+            $('#' + _elementDivId + '_list').append($('<ul/>').attr({
+                'id': '_todo',
+                'class': 'todo-list'
+            }));
+
+            $('#_todo').append($('<li/>').append($('<span/>').append($('<input/>').attr({
+                'type': 'checkbox'
+            }))).append($('<span/>').attr({
+                'class': 'taskinfo'
+            }).text(taskInfo.description))
+                .append($('<span/>').attr({
+                    'class': 'taskdate'
+                }).text("Created: " + (Date.now())))
+                .append($('<span/>').text('x').css({
+                    'float': 'right',
+                    'color': 'black',
+                    'cursor': 'pointer',
+                    'title': 'Leave chat'
+                }).click(function () {
+                })));
+        }
+
+        return {
+            'initialize': _initialize
+        };
+    }
 
     return {'initialize': _initialize};
 }

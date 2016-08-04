@@ -8,11 +8,13 @@ define(function(require) {
 
     var UserService = require('./service/clouduserservice');
 
+    var TaskService = require('./service/cloudtaskservice');
+
     var eventBus = new EventBus();
 
     var baseURL = 'http://localhost:8080/';
 
-    var todoList = new TodoList("todo", eventBus, new UserService(eventBus, baseURL));
+    var todoList = new TodoList("todo", eventBus, new UserService(eventBus, baseURL), new TaskService(eventBus, baseURL));
 
     todoList.initialize();
 });	

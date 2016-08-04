@@ -70,7 +70,7 @@ var TaskService = function (eventBus, serverURL) {
 
         $.get(serverURL + "api/tasks",
             {
-                tokenId: tokenId
+                tokenId: tokenId.tokenId
 
             }, function (xhr) {
 

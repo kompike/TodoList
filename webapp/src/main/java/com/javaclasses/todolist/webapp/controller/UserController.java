@@ -1,9 +1,7 @@
 package com.javaclasses.todolist.webapp.controller;
 
-import com.javaclasses.todolist.model.dto.LoginDTO;
-import com.javaclasses.todolist.model.dto.RegistrationDTO;
-import com.javaclasses.todolist.model.dto.SecurityTokenDTO;
-import com.javaclasses.todolist.model.dto.TaskDTO;
+import com.javaclasses.todolist.model.dto.*;
+import com.javaclasses.todolist.model.entity.tinytype.SecurityTokenId;
 import com.javaclasses.todolist.model.entity.tinytype.TaskId;
 import com.javaclasses.todolist.model.entity.tinytype.UserId;
 import com.javaclasses.todolist.model.service.TaskService;
@@ -19,9 +17,11 @@ import com.javaclasses.todolist.webapp.handler.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 
+import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static javax.ws.rs.HttpMethod.POST;
@@ -36,6 +36,7 @@ public class UserController {
     // Possible URLs
     private static final String USER_REGISTRATION_URL = "/api/register";
     private static final String LOGIN_URL = "/api/login";
+    private static final String LOGOUT_URL = "/api/logout";
 
     // Possible request methods
     private static final String POST_METHOD = POST;
@@ -56,6 +57,7 @@ public class UserController {
     private UserController() {
         registerUser();
         loginUser();
+        logoutUser();
     }
 
     private void registerUser() {
@@ -129,6 +131,27 @@ public class UserController {
         });
     }
 
+    private void logoutUser() {
+        handlerRegistry.registerHandler(new RequestContext(LOGOUT_URL, POST_METHOD), (request, response) -> {
+
+            final JsonEntity jsonEntity = new JsonEntity();
+
+            final UserDTO user = getUserByToken(request);
+
+            if (user == null) {
+                return getUserNotAuthorizedJson(jsonEntity);
+            }
+
+            final String requestTokenId = request.getParameter(TOKEN_ID_PARAMETER);
+
+            userService.logout(new SecurityTokenId(Long.valueOf(requestTokenId)));
+            jsonEntity.add(MESSAGE_PARAMETER, "User successfully logged out");
+            jsonEntity.setResponseStatusCode(SC_OK);
+
+            return jsonEntity;
+        });
+    }
+
     private String getUserTaskList(UserId userId) {
 
         final StringBuilder builder = new StringBuilder("[");
@@ -152,6 +175,22 @@ public class UserController {
         builder.append("]");
 
         return builder.toString();
+    }
+
+
+    private UserDTO getUserByToken(HttpServletRequest request) {
+
+        final String requestTokenId = request.getParameter(TOKEN_ID_PARAMETER);
+        final SecurityTokenId tokenId = new SecurityTokenId(Long.valueOf(requestTokenId));
+        return userService.findByToken(tokenId);
+    }
+
+    private JsonEntity getUserNotAuthorizedJson(JsonEntity jsonEntity) {
+
+        jsonEntity.add(ERROR_MESSAGE_PARAMETER, "User not authorized");
+        jsonEntity.setResponseStatusCode(SC_FORBIDDEN);
+
+        return jsonEntity;
     }
 
     public static UserController init() {

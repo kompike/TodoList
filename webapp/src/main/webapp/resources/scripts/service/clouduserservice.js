@@ -47,9 +47,28 @@ var UserService = function(eventBus, serverURL) {
         _loginUser(user);
     };
 
+    var _logoutUser = function(data) {
+        $.post(
+            serverURL + "api/logout",
+            {
+                tokenId: data.tokenId
+            },
+            function(xhr) {
+                var data = JSON.parse(xhr);
+                localStorage.removeItem('tokenId');
+                localStorage.removeItem('currentUser');
+                eventBus.post(Events.USER_LOGGED_OUT, data);
+            }, 'text');
+    };
+
+    var _onUserLogout = function(data) {
+        _logoutUser(data);
+    };
+
     return {
         'onUserAdded' : _onUserAdded,
-        'onUserLogin' : _onUserLogin
+        'onUserLogin' : _onUserLogin,
+        'onUserLogout' : _onUserLogout
     };
 };
 

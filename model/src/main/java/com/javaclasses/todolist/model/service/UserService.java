@@ -61,6 +61,12 @@ public interface UserService {
     Collection<UserDTO> findAll();
 
     /**
+     * Logout user from service
+     * @param tokenId Security token id of user to be logged out
+     */
+    void logout(SecurityTokenId tokenId);
+
+    /**
      * Delete user from repository by user id
      * @param userId Id of user to be deleted
      */

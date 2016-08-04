@@ -263,6 +263,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void logout(SecurityTokenId tokenId) {
+
+        if (log.isInfoEnabled()) {
+            log.info("Start logout user with security token: " + tokenId.getId());
+        }
+
+        tokenRepository.delete(tokenId);
+
+        if (log.isInfoEnabled()) {
+            log.info("User successfully logged out.");
+        }
+
+    }
+
+    @Override
     public void delete(UserId userId) {
 
         if (log.isInfoEnabled()) {

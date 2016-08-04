@@ -51,10 +51,26 @@ var TaskService = function (eventBus, serverURL) {
             }, 'text');
     };
 
+    var _onTaskDeleted = function (taskInfo) {
+
+        $.post(serverURL + "api/tasks/delete",
+            {
+                taskId: taskInfo.taskId,
+                tokenId: taskInfo.tokenId
+
+            }, function (xhr) {
+
+                var data = eval("(" + xhr + ")");
+                eventBus.post(Events.TASK_DELETED, data.taskId);
+
+            }, 'text');
+    };
+
     return {
         'onTaskAdded': _onTaskAdded,
         'onTaskCompleted': _onTaskCompleted,
-        'onTaskReopened': _onTaskReopened
+        'onTaskReopened': _onTaskReopened,
+        'onTaskDeleted': _onTaskDeleted
     };
 };
 

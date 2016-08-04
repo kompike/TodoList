@@ -132,6 +132,7 @@ public class TaskController {
 
             final String taskId = request.getParameter("taskId");
             taskService.delete(new TaskId(Long.valueOf(taskId)));
+            jsonEntity.add("taskId", taskId);
             jsonEntity.add(MESSAGE_PARAMETER, "Task successfully deleted");
             jsonEntity.setResponseStatusCode(SC_OK);
 

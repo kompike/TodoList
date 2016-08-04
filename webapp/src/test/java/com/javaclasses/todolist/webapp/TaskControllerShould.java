@@ -69,8 +69,8 @@ public class TaskControllerShould {
 
         final String responseContent = getResponseContent(httpEntity);
 
-        assertEquals("Task was not completed.",
-                "{\"message\":\"Task successfully completed\"}", responseContent);
+        assertTrue("Created task does not contain 'message' field.",
+                responseContent.contains("Task successfully completed"));
 
     }
 
@@ -87,8 +87,8 @@ public class TaskControllerShould {
 
         final String responseContent = getResponseContent(httpEntity);
 
-        assertEquals("Task was not reopened.",
-                "{\"message\":\"Task successfully reopened\"}", responseContent);
+        assertTrue("Created task does not contain 'message' field.",
+                responseContent.contains("Task successfully reopened"));
 
     }
 
@@ -105,8 +105,8 @@ public class TaskControllerShould {
 
         final String responseContent = getResponseContent(httpEntity);
 
-        assertEquals("Task was not deleted.",
-                "{\"message\":\"Task successfully deleted\"}", responseContent);
+        assertTrue("Created task does not contain 'message' field.",
+                responseContent.contains("Task successfully deleted"));
 
     }
 }

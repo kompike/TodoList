@@ -44,7 +44,7 @@ public class TaskServiceShould {
     }
 
     @Test
-    public void allowUserToUpdateTask() throws TaskCreationException {
+    public void allowUserToCompleteTask() throws TaskCreationException {
 
         final String taskDescription = "New task";
 
@@ -55,17 +55,38 @@ public class TaskServiceShould {
         assertEquals("Actual task description does not equal expected.",
                 taskDescription, task.getDescription());
 
-        taskService.update(taskId);
-        final TaskDTO updatedTask = taskService.findById(taskId);
+        taskService.complete(taskId);
+        final TaskDTO completedTask = taskService.findById(taskId);
 
         assertEquals("Task status was not changed.",
-                false, updatedTask.isActive());
+                false, completedTask.isActive());
 
-        taskService.update(taskId);
-        final TaskDTO updatedTwiceTask = taskService.findById(taskId);
+        taskService.delete(taskId);
+    }
+
+    @Test
+    public void allowUserToReopenTask() throws TaskCreationException {
+
+        final String taskDescription = "New task";
+
+        final TaskId taskId =
+                taskService.add(new AddedTaskDTO(taskDescription, new UserId(2)));
+        final TaskDTO task = taskService.findById(taskId);
+
+        assertEquals("Actual task description does not equal expected.",
+                taskDescription, task.getDescription());
+
+        taskService.complete(taskId);
+        final TaskDTO completedTask = taskService.findById(taskId);
 
         assertEquals("Task status was not changed.",
-                true, updatedTwiceTask.isActive());
+                false, completedTask.isActive());
+
+        taskService.reopen(taskId);
+        final TaskDTO reopenedTask = taskService.findById(taskId);
+
+        assertEquals("Task status was not changed.",
+                true, reopenedTask.isActive());
 
         taskService.delete(taskId);
     }

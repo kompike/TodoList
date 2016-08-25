@@ -147,33 +147,18 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void complete(TaskId taskId) {
+    public void update(TaskId taskId) {
 
         if (log.isInfoEnabled()) {
             log.info("Start completing task with id: " + taskId.getId());
         }
 
         final Task task = taskRepository.findById(taskId);
-        task.setCompletionStatus(true);
+        final boolean taskCompletionStatus = task.isCompleted();
+        task.setCompletionStatus(!taskCompletionStatus);
 
         if (log.isInfoEnabled()) {
             log.info("Task successfully completed.");
-        }
-
-    }
-
-    @Override
-    public void reopen(TaskId taskId) {
-
-        if (log.isInfoEnabled()) {
-            log.info("Start reopening task with id: " + taskId.getId());
-        }
-
-        final Task task = taskRepository.findById(taskId);
-        task.setCompletionStatus(false);
-
-        if (log.isInfoEnabled()) {
-            log.info("Task successfully reopened.");
         }
 
     }

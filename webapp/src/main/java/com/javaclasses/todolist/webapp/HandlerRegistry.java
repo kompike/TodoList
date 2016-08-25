@@ -9,8 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static javax.ws.rs.HttpMethod.GET;
-import static javax.ws.rs.HttpMethod.POST;
+import static javax.ws.rs.HttpMethod.*;
 
 /**
  * Registry of all possible handlers
@@ -24,13 +23,14 @@ public class HandlerRegistry {
     public static final String LOGIN_URL = "/api/login";
     public static final String LOGOUT_URL = "/api/logout";
     public static final String TASKS_URL = "/api/tasks";
-    public static final String TASK_COMPLETION_URL = "/api/tasks/complete";
-    public static final String TASK_REOPENING_URL = "/api/tasks/reopen";
-    public static final String TASK_DELETION_URL = "/api/tasks/delete";
+    public static final String TASK_UPDATING_URL = "/api/tasks/?";
+    public static final String TASK_DELETION_URL = "/api/tasks/?";
 
     // Possible request methods
     public static final String POST_METHOD = POST;
     public static final String GET_METHOD = GET;
+    public static final String PUT_METHOD = PUT;
+    public static final String DELETE_METHOD = DELETE;
 
     // Request parameter names
     public static final String EMAIL_PARAMETER = "email";
@@ -62,6 +62,7 @@ public class HandlerRegistry {
 
     /**
      * Adds new handler to registry
+     *
      * @param context Request data
      * @param handler Handler instance to be executed by given context
      */
@@ -82,6 +83,7 @@ public class HandlerRegistry {
 
     /**
      * Searches handler by given data
+     *
      * @param requestContext Request data
      * @return Handler by given data
      */
@@ -90,23 +92,30 @@ public class HandlerRegistry {
         if (log.isInfoEnabled()) {
             log.info("Start looking for handler..." + requestContext.toString());
         }
+        final String uri = requestContext.getUri();
+        final String method = requestContext.getMethod();
 
-        final Handler handler = registry.get(requestContext);
+        for (Map.Entry<RequestContext, Handler> entry : registry.entrySet()) {
 
-        if (handler == null) {
-            if (log.isWarnEnabled()) {
-                log.warn("Handler by given request context not found: " + requestContext.toString());
+            final RequestContext currentRequestContext = entry.getKey();
+            if (currentRequestContext.getUri().startsWith(uri) &&
+                    currentRequestContext.getMethod().equals(method)) {
+                try {
+                    return entry.getValue();
+                } finally {
+                    if (log.isInfoEnabled()) {
+                        log.info("Handler successfully found. " + requestContext.toString());
+                    }
+                }
+
             }
-
-            return new PageNotFoundHandler();
+        }
+        if (log.isWarnEnabled()) {
+            log.warn("Handler by given request context not found: " + requestContext.toString());
         }
 
-        try {
-            return handler;
-        } finally {
-            if (log.isInfoEnabled()) {
-                log.info("Handler successfully found. " + requestContext.toString());
-            }
-        }
+        return new PageNotFoundHandler();
     }
+
+
 }

@@ -46,13 +46,7 @@ public interface TaskService {
      * Set task task status to false
      * @param taskId Id of task to be completed
      */
-    void complete(TaskId taskId);
-
-    /**
-     * Set task task status to true
-     * @param taskId Id of task to be reopened
-     */
-    void reopen(TaskId taskId);
+    void update(TaskId taskId);
 
     /**
      * Delete task from repository

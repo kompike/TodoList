@@ -30,7 +30,7 @@ import static org.apache.http.HttpHeaders.USER_AGENT;
     private static final String REGISTRATION_URL = URL + "register";
     private static final String LOGIN_URL = URL + "login";
     private static final String TASK_ADDITION_URL = URL + "tasks";
-    private static final String TASK_COMPLETION_URL = URL + "tasks/complete";
+    private static final String TASK_COMPLETION_URL = URL + "tasks/update";
     private static final String TASK_REOPENING_URL = URL + "tasks/reopen";
     private static final String TASK_DELETION_URL = URL + "tasks/delete";
 

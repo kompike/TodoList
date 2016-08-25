@@ -59,7 +59,7 @@ public class TaskServiceShould {
         assertEquals("Actual task description does not equal expected.",
                 taskDescription, task.getDescription());
 
-        taskService.complete(taskId);
+        taskService.update(taskId);
         final TaskDTO completedTask = taskService.findById(taskId);
 
         assertEquals("Task status was not changed.",
@@ -80,13 +80,13 @@ public class TaskServiceShould {
         assertEquals("Actual task description does not equal expected.",
                 taskDescription, task.getDescription());
 
-        taskService.complete(taskId);
+        taskService.update(taskId);
         final TaskDTO completedTask = taskService.findById(taskId);
 
         assertEquals("Task status was not changed.",
                 true, completedTask.isActive());
 
-        taskService.reopen(taskId);
+        taskService.update(taskId);
         final TaskDTO reopenedTask = taskService.findById(taskId);
 
         assertEquals("Task status was not changed.",

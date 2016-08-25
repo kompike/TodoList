@@ -20,15 +20,14 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
         eventBus.subscribe(Events.LOGIN_SUCCESSFULL, dashboardComponent.initialize);
         eventBus.subscribe(Events.LOGIN_ATTEMPT, userService.onUserLogin);
         eventBus.subscribe(Events.NEW_TASK_ADDITION, taskService.onTaskAdded);
-        eventBus.subscribe(Events.TASK_COMPLETION, taskService.onTaskCompleted);
-        eventBus.subscribe(Events.TASK_REOPENING, taskService.onTaskReopened);
+        eventBus.subscribe(Events.TASK_UPDATING, taskService.onTaskUpdated);
         eventBus.subscribe(Events.TASK_DELETING, taskService.onTaskDeleted);
         eventBus.subscribe(Events.USER_LOGOUT, userService.onUserLogout);
 
         var tokenId = localStorage.getItem('tokenId');
 
         if (tokenId !== null) {
-            eventBus.post(Events.USER_ALREADY_LOGGED_IN, {'tokenId':tokenId});
+            eventBus.post(Events.USER_ALREADY_LOGGED_IN, {'tokenId': tokenId});
         } else {
             registrationComponent.initialize();
         }
@@ -119,11 +118,11 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
             $('#' + _elementDivId + '_box_success').html('');
             $('#' + _elementDivId + '_box_err').html($('<span/>').text(message));
         };
-        
-        var _clearFields = function() {
+
+        var _clearFields = function () {
             $('#' + _elementDivId + '_email').val('');
             $('#' + _elementDivId + '_password').val('');
-            $('#' + _elementDivId + '_confirm_password').val('');            
+            $('#' + _elementDivId + '_confirm_password').val('');
         };
 
         return {
@@ -205,8 +204,7 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
 
             eventBus.subscribe(Events.TASK_CREATED, _onTaskCreated);
             eventBus.subscribe(Events.TASK_CREATION_FAILED, _onTaskCreationFailed);
-            eventBus.subscribe(Events.TASK_COMPLETED, _onTaskCompleted);
-            eventBus.subscribe(Events.TASK_REOPENED, _onTaskReopened);
+            eventBus.subscribe(Events.TASK_UPDATED, _onTaskUpdated);
             eventBus.subscribe(Events.TASK_DELETED, _onTaskDeleted);
             eventBus.subscribe(Events.USER_LOGOUT, _onLogout);
 
@@ -269,11 +267,7 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
                             'taskId': $(this).parent().parent().attr('id'),
                             'tokenId': localStorage.getItem('tokenId')
                         };
-                        if (this.checked) {
-                            eventBus.post(Events.TASK_COMPLETION, taskInfo);
-                        } else {
-                            eventBus.post(Events.TASK_REOPENING, taskInfo);
-                        }
+                        eventBus.post(Events.TASK_UPDATING, taskInfo);
                     })))
                         .append($('<span/>').attr({
                             'id': 'description_' + currentTaskId,
@@ -286,7 +280,7 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
                             'float': 'right',
                             'color': 'black',
                             'cursor': 'pointer',
-                            'title': 'Leave chat'
+                            'title': 'Delete task'
                         }).click(function () {
                             var taskInfo = {
                                 'taskId': $(this).parent().attr('id'),
@@ -296,7 +290,7 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
                         })));
 
                     if (userTasks[i].status == 'true') {
-                        $('#checkbox_' + currentTaskId).attr('checked','checked');
+                        $('#checkbox_' + currentTaskId).attr('checked', 'checked');
                         $('#' + currentTaskId).css({'background': '#f4f7f8'});
                         $('#description_' + currentTaskId).css({'text-decoration': 'line-through'});
                     }
@@ -306,16 +300,18 @@ var TodoList = function (rootDivId, eventBus, userService, taskService) {
             }
         };
 
-        var _onTaskCompleted = function (taskId) {
+        var _onTaskUpdated = function (taskData) {
             $('#task_description').val('');
-            $('#' + taskId).css({'background': '#f4f7f8'});
-            $('#description_' + taskId).css({'text-decoration': 'line-through'});
-        };
 
-        var _onTaskReopened = function (taskId) {
-            $('#task_description').val('');
-            $('#' + taskId).css({'background': '#fff'});
-            $('#description_' + taskId).css({'text-decoration': 'none'});
+            if (taskData.status == 'true') {
+                $('#checkbox_' + taskData.taskId).attr('checked', 'checked');
+                $('#' + taskData.taskId).css({'background': '#f4f7f8'});
+                $('#description_' + taskData.taskId).css({'text-decoration': 'line-through'});
+            } else {
+                $('#checkbox_' + taskData.taskId).attr('checked', 'unchecked');
+                $('#' + taskData.taskId).css({'background': '#fff'});
+                $('#description_' + taskData.taskId).css({'text-decoration': 'none'});
+            }
         };
 
         var _onTaskDeleted = function (taskId) {

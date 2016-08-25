@@ -13,6 +13,14 @@ public class RequestContext {
         this.method = method;
     }
 
+    public String getUri() {
+        return uri;
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
     @Override
     public String toString() {
         return uri + ", " + method;

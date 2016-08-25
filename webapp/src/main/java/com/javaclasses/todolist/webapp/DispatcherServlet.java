@@ -34,6 +34,16 @@ public class DispatcherServlet extends HttpServlet {
         execute(request, response);
     }
 
+    protected void doPut(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        execute(request, response);
+    }
+
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        execute(request, response);
+    }
+
     private void execute(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
@@ -42,7 +52,9 @@ public class DispatcherServlet extends HttpServlet {
         }
 
         final String uri = request.getRequestURI();
+        System.out.println("uri: " + uri);
         final String method = request.getMethod().toUpperCase();
+        System.out.println("method: " + method);
         final RequestContext requestContext = new RequestContext(uri, method);
 
         final Handler handler = registry.getHandler(requestContext);

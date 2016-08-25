@@ -21,49 +21,34 @@ var TaskService = function (eventBus, serverURL) {
             });
     };
 
-    var _completeTask = function (taskInfo) {
+    var _updateTask = function (taskInfo) {
 
-        $.post(serverURL + "api/tasks/complete",
-            {
-                taskId: taskInfo.taskId,
-                tokenId: taskInfo.tokenId
-
-            }, function (xhr) {
-
-                var data = eval("(" + xhr + ")");
-                eventBus.post(Events.TASK_COMPLETED, data.taskId);
-
-            }, 'text');
-    };
-
-    var _reopenTask = function (taskInfo) {
-
-        $.post(serverURL + "api/tasks/reopen",
-            {
-                taskId: taskInfo.taskId,
-                tokenId: taskInfo.tokenId
-
-            }, function (xhr) {
+        $.ajax({
+            url: serverURL + "api/tasks/?taskId=" + taskInfo.taskId + "&tokenId=" + taskInfo.tokenId,
+            type: 'PUT',
+            dataType: 'text',
+            success: function (xhr) {
 
                 var data = eval("(" + xhr + ")");
-                eventBus.post(Events.TASK_REOPENED, data.taskId);
+                eventBus.post(Events.TASK_UPDATED, data);
 
-            }, 'text');
+            }
+        });
     };
 
     var _deleteTask = function (taskInfo) {
 
-        $.post(serverURL + "api/tasks/delete",
-            {
-                taskId: taskInfo.taskId,
-                tokenId: taskInfo.tokenId
-
-            }, function (xhr) {
+        $.ajax({
+            url: serverURL + "api/tasks/?taskId=" + taskInfo.taskId + "&tokenId=" + taskInfo.tokenId,
+            type: 'DELETE',
+            dataType: 'text',
+            success: function (xhr) {
 
                 var data = eval("(" + xhr + ")");
                 eventBus.post(Events.TASK_DELETED, data.taskId);
 
-            }, 'text');
+            }
+        });
     };
 
     var _onUserAlreadyLoggedIn = function (tokenId) {
@@ -84,14 +69,9 @@ var TaskService = function (eventBus, serverURL) {
         _addTask(taskInfo);
     };
 
-    var _onTaskCompleted = function (taskInfo) {
+    var _onTaskUpdated = function (taskInfo) {
 
-        _completeTask(taskInfo);
-    };
-
-    var _onTaskReopened = function (taskInfo) {
-
-        _reopenTask(taskInfo);
+        _updateTask(taskInfo);
     };
 
     var _onTaskDeleted = function (taskInfo) {
@@ -101,8 +81,7 @@ var TaskService = function (eventBus, serverURL) {
 
     return {
         'onTaskAdded': _onTaskAdded,
-        'onTaskCompleted': _onTaskCompleted,
-        'onTaskReopened': _onTaskReopened,
+        'onTaskUpdated': _onTaskUpdated,
         'onTaskDeleted': _onTaskDeleted,
         'onUserAlreadyLoggedIn': _onUserAlreadyLoggedIn
     };

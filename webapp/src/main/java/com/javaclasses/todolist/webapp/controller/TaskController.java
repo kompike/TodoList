@@ -1,6 +1,7 @@
 package com.javaclasses.todolist.webapp.controller;
 
 import com.javaclasses.todolist.model.dto.AddedTaskDTO;
+import com.javaclasses.todolist.model.dto.TaskDTO;
 import com.javaclasses.todolist.model.dto.UserDTO;
 import com.javaclasses.todolist.model.entity.tinytype.TaskId;
 import com.javaclasses.todolist.model.service.TaskCreationException;
@@ -26,9 +27,8 @@ public class TaskController {
 
     private TaskController() {
         addNewTask();
-        completeTask();
+        updateTask();
         getAllTasksTask();
-        reopenTask();
         deleteTask();
     }
 
@@ -80,8 +80,8 @@ public class TaskController {
         });
     }
 
-    private void completeTask() {
-        handlerRegistry.registerHandler(new RequestContext(TASK_COMPLETION_URL, POST_METHOD), (request, response) -> {
+    private void updateTask() {
+        handlerRegistry.registerHandler(new RequestContext(TASK_UPDATING_URL, PUT_METHOD), (request, response) -> {
 
             final JsonEntity jsonEntity = new JsonEntity();
 
@@ -91,9 +91,14 @@ public class TaskController {
                 return getUserNotAuthorizedJson(jsonEntity);
             }
 
-            final String taskId = request.getParameter(TASK_ID_PARAMETER);
-            taskService.complete(new TaskId(Long.valueOf(taskId)));
-            jsonEntity.add(TASK_ID_PARAMETER, taskId);
+            final String taskIdParameter = request.getParameter(TASK_ID_PARAMETER);
+            final TaskId taskId = new TaskId(Long.valueOf(taskIdParameter));
+
+            taskService.update(taskId);
+
+            final TaskDTO taskDTO = taskService.findById(taskId);
+            jsonEntity.add(TASK_ID_PARAMETER, taskIdParameter);
+            jsonEntity.add(STATUS_PARAMETER, String.valueOf(taskDTO.isActive()));
             jsonEntity.add(MESSAGE_PARAMETER, "Task successfully completed");
             jsonEntity.setResponseStatusCode(SC_OK);
 
@@ -101,29 +106,8 @@ public class TaskController {
         });
     }
 
-    private void reopenTask() {
-        handlerRegistry.registerHandler(new RequestContext(TASK_REOPENING_URL, POST_METHOD), (request, response) -> {
-
-            final JsonEntity jsonEntity = new JsonEntity();
-
-            final UserDTO user = getUserByToken(request);
-
-            if (user == null) {
-                return getUserNotAuthorizedJson(jsonEntity);
-            }
-
-            final String taskId = request.getParameter(TASK_ID_PARAMETER);
-            taskService.reopen(new TaskId(Long.valueOf(taskId)));
-            jsonEntity.add(TASK_ID_PARAMETER, taskId);
-            jsonEntity.add(MESSAGE_PARAMETER, "Task successfully reopened");
-            jsonEntity.setResponseStatusCode(SC_OK);
-
-            return jsonEntity;
-        });
-    }
-
     private void deleteTask() {
-        handlerRegistry.registerHandler(new RequestContext(TASK_DELETION_URL, POST_METHOD), (request, response) -> {
+        handlerRegistry.registerHandler(new RequestContext(TASK_DELETION_URL, DELETE_METHOD), (request, response) -> {
 
             final JsonEntity jsonEntity = new JsonEntity();
 

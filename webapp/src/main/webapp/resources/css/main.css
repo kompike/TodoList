@@ -4,7 +4,7 @@
     box-sizing: border-box;
 }
 
-div[id$="_register"], div[id$="_login"] {
+._register, ._login {
     max-width: 300px;
     margin: 25px auto;
     padding: 5px 10px;

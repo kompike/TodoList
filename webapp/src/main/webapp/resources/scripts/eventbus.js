@@ -1,10 +1,13 @@
-var EventBus = function(){
+class EventBus {
 
-    var _subscribers = {};
+    constructor() {
+        this.subscribers = {};
+    }
 
-    var _post = function(eventType, someEvent) {
 
-        var eventTypeSubscribers = _subscribers[eventType];
+    post(eventType, someEvent) {
+
+        let eventTypeSubscribers = this.subscribers[eventType];
 
         if (eventTypeSubscribers == undefined) {
 
@@ -15,38 +18,32 @@ var EventBus = function(){
             for (var i = 0; i < eventTypeSubscribers.length; i++) {
                 eventTypeSubscribers[i](someEvent);
             }
+
+            console.log('Event posted for eventType : ' + eventType);
         }
-    };
+    }
 
-    var _subcribe = function(eventType, callback) {
+    subscribe (eventType, callback) {
 
-        if (typeof (_subscribers[eventType]) === 'undefined') {
+        if (typeof (this.subscribers[eventType]) === 'undefined') {
 
-            _subscribers[eventType] = [];
+            this.subscribers[eventType] = [];
 
         }
 
         if (typeof (callback) === 'function') {
 
-            _subscribers[eventType].push(callback);
+            this.subscribers[eventType].push(callback);
+
+            console.log('Subscriber added');
 
         } else {
 
             console.log("Callback must be function for event type : " + eventType);
 
         }
-    };
-
-    return {
-        "post": _post,
-        "subscribe": _subcribe
-    };
-};
-
-if (typeof define !== 'function') {
-    var define = require('amdefine')(module);
+    }
 }
 
-define(function() {
-    return EventBus;
-});
+let eventBus = new EventBus();
+export default eventBus;

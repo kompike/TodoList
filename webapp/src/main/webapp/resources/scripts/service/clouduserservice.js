@@ -1,81 +1,71 @@
-var UserService = function(eventBus, serverURL) {
+import Events from '../events';
+import eventBus from '../eventbus';
 
-    var _addUser = function(user) {
-        var email = user.email;
-        var password = user.password;
-        var confirmPassword = user.confirmPassword;
-        $.post(serverURL + "api/register",{
-            email: email,
-            password: password,
-            confirmPassword: confirmPassword
-        }, function(xhr) {
-            var data = JSON.parse(xhr);
-            eventBus.post(Events.USER_REGISTERED, data.message);
-        }, 'text')
-            .fail(function(xhr, status, error) {
-                var err = JSON.parse(xhr.responseText);
-                eventBus.post(Events.REGISTRATION_FAILED, err.errorMessage);
-            });
-    };
+class UserService {
 
-    var _onUserAdded = function(user) {
-        return _addUser(user);
-    };
+    constructor() {
+    }
 
-    var _loginUser = function(user) {
-        var email = user.email;
-        var password = user.password;
-        $.post(
-            serverURL + "api/login",
-            {
-                email: email,
-                password: password
+    addUser(user) {
+        $.ajax({
+            url: 'http://localhost:8080/api/register',
+            method: 'post',
+            dataType: 'json',
+            data: {
+                email: user.email,
+                password: user.password,
+                confirmPassword: user.confirmPassword
             },
-            function(xhr) {
-                var data = JSON.parse(xhr);
+            cache: false,
+            success: function (data) {
+                eventBus.post(Events.USER_REGISTERED, data.message);
+            },
+            error: function (xhr, status, err) {
+                let error = JSON.parse(xhr.responseText);
+                eventBus.post(Events.REGISTRATION_FAILED, error.errorMessage);
+            }
+        });
+    }
+
+    loginUser(user) {
+        $.ajax({
+            url: 'http://localhost:8080/api/login',
+            method: 'post',
+            dataType: 'json',
+            data: {
+                email: user.email,
+                password: user.password
+            },
+            cache: false,
+            success: function (data) {
                 localStorage.setItem('tokenId', data.tokenId);
                 localStorage.setItem('currentUser', data.email);
                 eventBus.post(Events.LOGIN_SUCCESSFULL, data);
-            }, 'text')
-            .fail(function(xhr, status, error) {
-                var err = JSON.parse(xhr.responseText);
-                eventBus.post(Events.LOGIN_FAILED, err.errorMessage);
-            });
-    };
+            },
+            error: function (xhr, status, err) {
+                let error = JSON.parse(xhr.responseText);
+                eventBus.post(Events.LOGIN_FAILED, error.errorMessage);
+            }
+        });
+    }
 
-    var _onUserLogin = function(user) {
-        _loginUser(user);
-    };
-
-    var _logoutUser = function(data) {
-        $.post(
-            serverURL + "api/logout",
-            {
+    logoutUser(data) {
+        $.ajax({
+            url: 'http://localhost:8080/api/logout',
+            method: 'post',
+            dataType: 'json',
+            data: {
                 tokenId: data.tokenId
             },
-            function(xhr) {
-                var data = JSON.parse(xhr);
+            cache: false,
+            success: function (data) {
                 localStorage.removeItem('tokenId');
                 localStorage.removeItem('currentUser');
                 eventBus.post(Events.USER_LOGGED_OUT, data);
-            }, 'text');
-    };
-
-    var _onUserLogout = function(data) {
-        _logoutUser(data);
-    };
-
-    return {
-        'onUserAdded' : _onUserAdded,
-        'onUserLogin' : _onUserLogin,
-        'onUserLogout' : _onUserLogout
-    };
-};
-
-if (typeof define !== 'function') {
-    var define = require('amdefine')(module);
+            }
+        });
+    }
 }
 
-define(function() {
-    return UserService;
-});
+let userService = new UserService();
+export default userService;

@@ -1,90 +1,73 @@
 import Events from '../events';
+import eventBus from '../eventbus';
 
 class TaskService {
 
-    constructor(eventBus, serverURL) {
-        this.eventBus = eventBus;
-        this.serverURL = serverURL;
+    constructor() {
     }
 
     addTask(taskInfo) {
-
-        $.post(this.serverURL + "api/tasks",
-            {
+        $.ajax({
+            url: 'http://localhost:8080/api/tasks',
+            method: 'post',
+            dataType: 'json',
+            data: {
                 description: taskInfo.description,
                 tokenId: taskInfo.tokenId
-
-            }, function (xhr) {
-
-                var data = eval("(" + xhr + ")");
-                this.eventBus.post(Events.TASK_CREATED, data);
-
-            }, 'text')
-
-            .fail(function (xhr) {
-
-                var res = eval("(" + xhr.responseText + ")");
-                this.eventBus.post(Events.TASK_CREATION_FAILED, res.errorMessage);
-            });
+            },
+            cache: false,
+            success: function (data) {
+                eventBus.post(Events.TASK_CREATED, data);
+            },
+            error: function (xhr) {
+                let error = JSON.parse(xhr.responseText);
+                eventBus.post(Events.TASK_CREATION_FAILED, error.errorMessage);
+            }
+        });
     }
 
     updateTask(taskInfo) {
-
         $.ajax({
-            url: this.serverURL + "api/tasks/?taskId=" + taskInfo.taskId + "&tokenId=" + taskInfo.tokenId,
-            type: 'PUT',
-            dataType: 'text',
-            success: function (xhr) {
-
-                var data = eval("(" + xhr + ")");
-                this.eventBus.post(Events.TASK_UPDATED, data);
-
+            url: 'http://localhost:8080/api/tasks?taskId=' + taskInfo.taskId + '&tokenId=' + taskInfo.tokenId,
+            method: 'put',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                eventBus.post(Events.TASK_UPDATED, data);
             }
         });
     }
 
     deleteTask(taskInfo) {
-
         $.ajax({
-            url: this.serverURL + "api/tasks/?taskId=" + taskInfo.taskId + "&tokenId=" + taskInfo.tokenId,
-            type: 'DELETE',
-            dataType: 'text',
-            success: function (xhr) {
-
-                var data = eval("(" + xhr + ")");
-                this.eventBus.post(Events.TASK_DELETED, data.taskId);
-
+            url: 'http://localhost:8080/api/tasks?taskId=' + taskInfo.taskId + '&tokenId=' + taskInfo.tokenId,
+            method: 'delete',
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                eventBus.post(Events.TASK_DELETED, data);
             }
         });
     };
 
     onUserAlreadyLoggedIn(tokenId) {
-
-        $.get(this.serverURL + "api/tasks",
-            {
+        $.ajax({
+            url: 'http://localhost:8080/api/tasks',
+            method: 'get',
+            dataType: 'json',
+            data: {
                 tokenId: tokenId.tokenId
-
-            }, function (xhr) {
-
-                var data = eval("(" + xhr + ")");
-                this.eventBus.post(Events.LOGIN_SUCCESSFULL, data);
-
-            }, 'text');
+            },
+            cache: false,
+            success: function (data) {
+                eventBus.post(Events.LOGIN_SUCCESSFULL, data);
+            },
+            error: function () {
+                eventBus.post(Events.USER_NOT_REGISTERED, {});
+            }
+        });
     };
-
-    onTaskAdded(taskInfo) {
-        this.addTask(taskInfo);
-    };
-
-    onTaskUpdated(taskInfo) {
-
-        this.updateTask(taskInfo);
-    };
-
-    onTaskDeleted(taskInfo) {
-
-        this.deleteTask(taskInfo);
-    }
 }
 
-export default TaskService;
+let taskService = new TaskService();
+export default taskService;

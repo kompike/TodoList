@@ -18,8 +18,6 @@ class EventBus {
             for (var i = 0; i < eventTypeSubscribers.length; i++) {
                 eventTypeSubscribers[i](someEvent);
             }
-
-            console.log('Event posted for eventType : ' + eventType);
         }
     }
 
@@ -34,8 +32,6 @@ class EventBus {
         if (typeof (callback) === 'function') {
 
             this.subscribers[eventType].push(callback);
-
-            console.log('Subscriber added');
 
         } else {
 

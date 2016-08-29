@@ -6,7 +6,7 @@ class InputFieldComponent extends React.Component {
         return (
             <div>
                 <label htmlFor={this.props.for}>{this.props.text}</label>
-                <input id={this.props.id} type={this.props.type} name={this.props.name}/>
+                <input id={this.props.id} type={this.props.type} name={this.props.name} onKeyDown={this.submit}/>
                 <br/>
             </div>
         );

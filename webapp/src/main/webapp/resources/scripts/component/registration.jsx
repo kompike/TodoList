@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Events from '../events';
 import eventBus from '../eventbus';
 import TitleComponent from './title';
@@ -12,12 +11,11 @@ class RegistrationComponent extends React.Component {
     constructor() {
         super();
         this.registrationFailed = this.registrationFailed.bind(this);
-        this.registrationSucceed = this.registrationSucceed.bind(this);
+        this.registrationSucceeded = this.registrationSucceeded.bind(this);
         eventBus.subscribe(Events.REGISTRATION_FAILED, this.registrationFailed);
-        eventBus.subscribe(Events.USER_REGISTERED, this.registrationSucceed);
+        eventBus.subscribe(Events.USER_REGISTERED, this.registrationSucceeded);
         this.state = {message: '', messageBoxId: '_box_err'};
     }
-
 
     static register() {
         let user = {
@@ -28,11 +26,11 @@ class RegistrationComponent extends React.Component {
         eventBus.post(Events.NEW_USER_ADDITION, user);
     }
 
-    onAlreadyRegistered() {
+    static onUserAlreadyRegistered() {
         eventBus.post(Events.USER_ALREADY_REGISTERED, {});
     }
 
-    registrationSucceed(msg) {
+    registrationSucceeded(msg) {
         this.setState({message: msg, messageBoxId: '_box_success'});
     }
 
@@ -46,15 +44,17 @@ class RegistrationComponent extends React.Component {
             <div>
                 <div className='_register'>
                     <TitleComponent text="Registration"/>
-                    <InputFieldComponent for="email" text="Email" id="_email" type="text" name="email"/>
+                    <InputFieldComponent ref="email" for="email" text="Email" id="_email" type="text" name="email"/>
                     <InputFieldComponent for="password" text="Password" id="_password" type="password" name="password"/>
                     <InputFieldComponent for="confirm_password" text="Confirm password" id="_confirm_password"
                                          type="password" name="confirm_password"/>
                     <MessageComponent id={this.state.messageBoxId} message={this.state.message}/>
-                    <Button buttonId="_register_btn" buttonText="Register" handleClick={RegistrationComponent.register}/>
+                    <Button buttonId="_register_btn" buttonText="Register"
+                            handleClick={RegistrationComponent.register}/>
                 </div>
-                <div id='_registered'>
-                    <Button buttonId="_register_btn_login" buttonText="Login" handleClick={this.onAlreadyRegistered}/>
+                <div className='_to_login'>
+                    <Button buttonId="_to_login" buttonText="Login"
+                            handleClick={RegistrationComponent.onUserAlreadyRegistered}/>
                 </div>
             </div>
         );

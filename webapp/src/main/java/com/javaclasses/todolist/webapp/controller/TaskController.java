@@ -96,10 +96,10 @@ public class TaskController {
 
             taskService.update(taskId);
 
-            final TaskDTO taskDTO = taskService.findById(taskId);
-            jsonEntity.add(TASK_ID_PARAMETER, taskIdParameter);
-            jsonEntity.add(STATUS_PARAMETER, String.valueOf(taskDTO.isActive()));
-            jsonEntity.add(MESSAGE_PARAMETER, "Task successfully completed");
+            final String tasks = getUserTaskList(user.getUserId());
+
+            jsonEntity.add(USER_TASKS_PARAMETER, tasks);
+            jsonEntity.add(MESSAGE_PARAMETER, "Task successfully updated");
             jsonEntity.setResponseStatusCode(SC_OK);
 
             return jsonEntity;
@@ -119,7 +119,10 @@ public class TaskController {
 
             final String taskId = request.getParameter(TASK_ID_PARAMETER);
             taskService.delete(new TaskId(Long.valueOf(taskId)));
-            jsonEntity.add(TASK_ID_PARAMETER, taskId);
+
+            final String tasks = getUserTaskList(user.getUserId());
+
+            jsonEntity.add(USER_TASKS_PARAMETER, tasks);
             jsonEntity.add(MESSAGE_PARAMETER, "Task successfully deleted");
             jsonEntity.setResponseStatusCode(SC_OK);
 

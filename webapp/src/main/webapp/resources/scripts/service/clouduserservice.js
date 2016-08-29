@@ -20,7 +20,7 @@ class UserService {
             success: function (data) {
                 eventBus.post(Events.USER_REGISTERED, data.message);
             },
-            error: function (xhr, status, err) {
+            error: function (xhr) {
                 let error = JSON.parse(xhr.responseText);
                 eventBus.post(Events.REGISTRATION_FAILED, error.errorMessage);
             }
@@ -42,7 +42,7 @@ class UserService {
                 localStorage.setItem('currentUser', data.email);
                 eventBus.post(Events.LOGIN_SUCCESSFULL, data);
             },
-            error: function (xhr, status, err) {
+            error: function (xhr) {
                 let error = JSON.parse(xhr.responseText);
                 eventBus.post(Events.LOGIN_FAILED, error.errorMessage);
             }

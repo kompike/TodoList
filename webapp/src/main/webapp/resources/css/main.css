@@ -12,7 +12,7 @@
     border-radius: 8px;
 }
 
-div[id$="_registered"], div[id$="_to_registration"], div[id$="_logout"] {
+._to_login, ._to_registration, ._logout {
     max-width: 200px;
     margin: 25px auto;
     padding: 5px 10px;
@@ -22,7 +22,6 @@ div[id$="_registered"], div[id$="_to_registration"], div[id$="_logout"] {
 
 input[type="text"],
 input[type="password"] {
-    background: rgba(255,255,255,0.1);
     border: none;
     font-size: 16px;
     height: auto;
@@ -32,22 +31,22 @@ input[type="password"] {
     width: 100%;
     background-color: #e8eeef;
     color: #8a97a0;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
     margin-bottom: 5px;
 }
 
 textarea {
-    display:inline-block;
+    display: inline-block;
     font-size: 16px;
     height: auto;
     margin: 25px auto;
     border-radius: 5px;
     padding: 10px;
     width: 60%;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
 }
 
-div[id$="_dashboard_header"], div[id$="_dashboard_list"] {
+._dashboard_header, ._dashboard_list {
     max-width: 800px;
     margin: 25px auto;
     padding: 5px 10px;
@@ -65,14 +64,13 @@ button {
     border-radius: 5px;
     width: 100%;
     border: 1px solid #3ac162;
-    border-width: 1px 1px 3px;
-    box-shadow: 0 -1px 0 rgba(255,255,255,0.1) inset;
+    box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.1) inset;
     margin-bottom: 5px;
     cursor: pointer;
 }
 
-.add_task {
-    display:inline-block !important;
+#_add_task {
+    display: inline-block !important;
     padding: 9px 9px 8px 9px;
     color: #FFF;
     background-color: #4bc970;
@@ -83,8 +81,7 @@ button {
     width: 35%;
     float: right;
     border: 1px solid #3ac162;
-    border-width: 1px 1px 3px;
-    box-shadow: 0 -1px 0 rgba(255,255,255,0.1) inset;
+    box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.1) inset;
     margin: 25px auto;
 }
 
@@ -93,7 +90,7 @@ label {
     margin-bottom: 8px;
 }
 
-div[id$="_box_err"] {
+#_box_err {
     text-align: center;
     color: #FF0000;
     font-size: 14px;
@@ -101,7 +98,7 @@ div[id$="_box_err"] {
     margin: 5px auto;
 }
 
-div[id$="_box_success"] {
+#_box_success {
     text-align: center;
     color: #0000FF;
     font-size: 14px;
@@ -114,7 +111,7 @@ h5 {
     margin: 5px auto;
     text-align: center;
     padding: 0;
-    margin-bottom:20px;
+    margin-bottom: 20px;
 }
 
 h6 {
@@ -123,7 +120,7 @@ h6 {
     margin: 5px auto;
     text-align: center;
     padding: 0;
-    margin-bottom:20px;
+    margin-bottom: 20px;
 }
 
 .todo-list {
@@ -132,12 +129,12 @@ h6 {
     list-style: none;
     -webkit-margin-before: 1em;
     -webkit-margin-after: 1em;
-    -webkit-margin-start: 0px;
-    -webkit-margin-end: 0px;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
     -webkit-padding-start: 1em;
 }
 
-.todo-list li {
+.todo-item-active {
     position: relative;
     background-color: #FFFFFF;
     padding: 7px 15px 7px 50px;
@@ -147,26 +144,55 @@ h6 {
     border: 1px solid #0000FF;
     -webkit-margin-before: 1em;
     -webkit-margin-after: 1em;
-    -webkit-margin-start: 0px;
-    -webkit-margin-end: 0px;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
     -webkit-padding-start: 1em;
 }
 
-input[type="checkbox"]{
+.todo-item-done {
+    position: relative;
+    background-color: #f4f7f8;
+    padding: 7px 15px 7px 50px;
+    line-height: 21px;
+    font-size: 14px;
+    color: #8b8f97;
+    border: 1px solid #0000FF;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0;
+    -webkit-margin-end: 0;
+    -webkit-padding-start: 1em;
+}
+
+input[type="checkbox"] {
     display: inline-block;
     float: left;
 }
 
-.taskinfo {
+.taskDescription {
     display: inline-block;
     margin-left: 10px;
     min-width: 65%;
     transition: all .3s ease;
 }
 
-.taskdate {
+.taskDescription-done {
+    display: inline-block;
+    margin-left: 10px;
+    min-width: 65%;
+    transition: all .3s ease;
+    text-decoration: line-through;
+}
+
+.taskDate {
     display: inline-block;
     margin-left: 10px;
     min-width: 25%;
     transition: all .3s ease;
+}
+
+.closeButton {
+    float: right;
+    color: black;
+    cursor: pointer;
 }

@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Events from '../events';
 import eventBus from '../eventbus';
 import TitleComponent from './title';
@@ -25,10 +24,10 @@ class LoginComponent extends React.Component {
     }
 
     loginFailed(msg) {
-        this.setState = {message: msg};
+        this.setState ({message: msg});
     }
 
-    onNotRegistered() {
+    static onUserNotRegistered() {
         eventBus.post(Events.USER_NOT_REGISTERED, {});
     }
 
@@ -41,10 +40,10 @@ class LoginComponent extends React.Component {
                     <InputFieldComponent for="email" text="Email" id="_email" type="text" name="email"/>
                     <InputFieldComponent for="password" text="Password" id="_password" type="password" name="password"/>
                     <MessageComponent id="_box_err" message={this.state.message}/>
-                    <Button buttonId="_register_btn" buttonText="Login" handleClick={LoginComponent.login}/>
+                    <Button buttonId="_login_btn" buttonText="Login" handleClick={LoginComponent.login}/>
                 </div>
-                <div id='_registered'>
-                    <Button buttonId="_register_btn_login" buttonText="Register" handleClick={this.onNotRegistered}/>
+                <div className='_to_registration'>
+                    <Button buttonId="_to_registration" buttonText="Register" handleClick={LoginComponent.onUserNotRegistered}/>
                 </div>
             </div>
         );
